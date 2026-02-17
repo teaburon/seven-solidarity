@@ -10,10 +10,19 @@ export default function App(){
   const [user, setUser] = useState(null)
   const navigate = useNavigate()
 
-  useEffect(()=>{ fetch(API + '/auth/me', { credentials: 'include' }).then(r=>r.json()).then(d=>setUser(d.user)).catch(()=>{}); }, [])
+  useEffect(()=>{ fetch(API + '/auth/me', { credentials: 'include' })
+    .then(r=>r.json())
+    .then(d=>setUser(d.user))
+    .catch(()=>{}); 
+  }, [])
 
   return (
-    <div style={{maxWidth:900,margin:'0 auto',padding:20,fontFamily:'system-ui, sans-serif'}}>
+    <div style={{
+        maxWidth:900,
+        margin:'0 auto',
+        padding:20,
+        fontFamily:'system-ui, sans-serif' 
+    }}>
       <header style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
         <h1><Link to="/">S.E.V.E.N. SOLIDARITY</Link></h1>
         <nav>

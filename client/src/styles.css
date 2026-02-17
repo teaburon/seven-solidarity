@@ -1,0 +1,18 @@
+body{
+    background:#f9fafb;color:#0f172a
+}
+input,textarea,button{
+    font:inherit;
+    padding:8px;
+    border:1px solid #ddd;
+    border-radius:6px
+}
+
+button{
+    background:#2563eb;
+    color:white;
+    border:none
+}
+a{
+    color:#2563eb
+}

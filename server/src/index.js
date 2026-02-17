@@ -15,7 +15,12 @@ const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
 const app = express();
 app.use(express.json());
-app.use(cors({ origin: FRONTEND_URL, credentials: true }));
+app.use(cors({ 
+    origin: [FRONTEND_URL], 
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true 
+}));
 
 if (!MONGO_URI) {
   console.error('MONGO_URI is not set. Copy .env.example to .env and set MONGO_URI');

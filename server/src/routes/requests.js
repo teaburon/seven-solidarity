@@ -14,7 +14,7 @@ router.post('/', ensureAuth, async (req, res) => {
     const { title, description, tags } = req.body;
     const reqDoc = await Request.create({ title, description, tags: tags || [], author: req.user._id });
     res.json(reqDoc);
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { res.status(500).json({ error: err.message + 'error in create request' }); }
 });
 
 // Search & list with tag filter: ?q=term&tags=tag1,tag2
@@ -27,7 +27,7 @@ router.get('/', async (req, res) => {
 
     const list = await Request.find(filter).populate('author', 'username avatar').sort({ createdAt: -1 }).limit(200);
     res.json(list);
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { res.status(500).json({ error: err.message + 'error in search/list requests' }); }
 });
 
 // Get single
@@ -38,7 +38,7 @@ router.get('/:id', async (req, res) => {
       .populate('responses.user', 'username avatar');
     if (!doc) return res.status(404).json({ error: 'Not found' });
     res.json(doc);
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { res.status(500).json({ error: err.message + 'error in get single request' }); }
 });
 
 // Update (owner)
@@ -53,7 +53,7 @@ router.put('/:id', ensureAuth, async (req, res) => {
     doc.tags = tags ?? doc.tags;
     await doc.save();
     res.json(doc);
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { res.status(500).json({ error: err.message + 'error in update request' }); }
 });
 
 // Delete (owner)
@@ -64,7 +64,7 @@ router.delete('/:id', ensureAuth, async (req, res) => {
     if (!doc.author.equals(req.user._id)) return res.status(403).json({ error: 'Forbidden' });
     await doc.remove();
     res.json({ ok: true });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { res.status(500).json({ error: err.message + 'error in delete request' }); }
 });
 
 // Respond to a request
@@ -77,7 +77,7 @@ router.post('/:id/respond', ensureAuth, async (req, res) => {
     await doc.save();
     const populated = await doc.populate('responses.user', 'username avatar');
     res.json(populated);
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) { res.status(500).json({ error: err.message + 'error in respond to request' }); }
 });
 
 module.exports = router;

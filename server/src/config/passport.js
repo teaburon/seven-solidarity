@@ -17,20 +17,17 @@ module.exports = function(passport) {
     clientSecret: process.env.DISCORD_CLIENT_SECRET,
     callbackURL: process.env.DISCORD_CALLBACK_URL,
     scope: ['identify','email']
-  }, async (accessToken, refreshToken, profile, done) => {
+  }, 
+  async (accessToken, refreshToken, profile, done) => {
     try {
       let user = await User.findOne({ discordId: profile.id });
       if (!user) {
         user = await User.create({
-          discordId: profile.id,
-          username: profile.username,
-          avatar: profile.avatar,
-          email: profile.email
         });
       }
       return done(null, user);
     } catch (err) {
-      return done(err);
+      return done(err, "Error during authentication");
     }
   }));
 };

@@ -58,7 +58,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/auth', authRoutes);
-app.use('/api/requests', requestRoutes);
+app.use('/requests', requestRoutes);
 
 app.get('/', (req, res) => res.json({ ok: true }));
 

@@ -6,19 +6,26 @@ export default function Home(){
   const [list, setList] = useState([])
   const [q, setQ] = useState('')
   const [tags, setTags] = useState('')
+  const [error, setError] = useState('')
 
   useEffect(()=>{ fetchList() }, [])
 
   async function fetchList(){
-    const qs = new URLSearchParams()
-    if (q) qs.set('q', q)
-    if (tags) qs.set('tags', tags)
-    const data = await get('/api/requests?' + qs.toString())
-    setList(data)
+    try {
+      setError('')
+      const qs = new URLSearchParams()
+      if (q) qs.set('q', q)
+      if (tags) qs.set('tags', tags)
+      const data = await get('/requests' + '?' + qs.toString())
+      setList(data)
+    } catch (err) {
+      setError('Failed to load requests: ' + err.message)
+    }
   }
 
   return (
     <div>
+      {error && <div style={{padding:12,background:'#fee',color:'#c00',borderRadius:6,marginBottom:12}}>{error}</div>}
       <div style={{display:'flex',gap:8,marginBottom:12}}>
         <input placeholder="Search" value={q} onChange={e=>setQ(e.target.value)} />
         <input placeholder="tags (comma)" value={tags} onChange={e=>setTags(e.target.value)} />

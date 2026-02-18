@@ -3,6 +3,7 @@ import { Routes, Route, Link, useNavigate } from 'react-router-dom'
 import Home from './pages/Home'
 import RequestForm from './pages/RequestForm'
 import RequestView from './pages/RequestView'
+import AuthFailure from './pages/AuthFailure'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:4000'
 
@@ -43,6 +44,7 @@ export default function App(){
         <Routes>
           <Route path="/" element={<Home user={user} />} />
           <Route path="/new" element={<RequestForm onCreated={id=>navigate(`/r/${id}`)} />} />
+          <Route path="/auth/failure" element={<AuthFailure />} />
           <Route path="/r/:id" element={<RequestView user={user} />} />
         </Routes>
       </main>

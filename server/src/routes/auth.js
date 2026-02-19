@@ -7,8 +7,10 @@ router.get('/discord', passport.authenticate('discord'));
 
 router.get('/discord/callback', passport.authenticate('discord', {
   failureRedirect: '/auth/failure'}), (req, res) => {
-   res.redirect(process.env.FRONTEND_URL || '/');
-
+    req.session.save(() => {
+      res.redirect(process.env.FRONTEND_URL || '/');
+    }
+  );
   // res.json({ user: req.user }); --- IGNORE ---
 });
 

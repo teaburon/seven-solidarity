@@ -5,13 +5,21 @@ const router = express.Router();
 
 router.get('/discord', passport.authenticate('discord'));
 
-router.get('/discord/callback', passport.authenticate('discord', {
-  failureRedirect: '/auth/failure'}), (req, res) => {
-    req.session.save(() => {
-      res.redirect(process.env.FRONTEND_URL || '/');
+router.get('/discord/callback', (req, res, next) => {
+  passport.authenticate('discord', (err, user) => {
+    if (err || !user) {
+      return res.redirect('/auth/failure');
     }
-  );
-  // res.json({ user: req.user }); --- IGNORE ---
+    req.session.regenerate(regenerateErr => {
+      if (regenerateErr) return next(regenerateErr);
+      req.logIn(user, loginErr => {
+        if (loginErr) return next(loginErr);
+        req.session.save(() => {
+          res.redirect(process.env.FRONTEND_URL || '/');
+        });
+      });
+    });
+  })(req, res, next);
 });
 
 router.get('/failure', (req, res) => res.status(401).json({ error: 'Authentication failed' }));
@@ -21,6 +29,9 @@ router.get('/logout', (req, res, next) => {
 });
 
 router.get('/me', (req, res) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
   if (!req.user) return res.json({ user: null });
   res.json({ user: req.user });
 });

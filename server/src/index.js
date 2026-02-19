@@ -12,18 +12,18 @@ const requestRoutes = require('./routes/requests');
 const MONGO_URI = process.env.MONGO_URI;
 const SESSION_SECRET = process.env.SESSION_SECRET || 'dev-secret';
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+const isProduction = process.env.NODE_ENV === 'production' || !FRONTEND_URL.includes('localhost');
 
 const app = express();
 app.use(express.json());
-
-app.use(cors({
-  origin: FRONTEND_URL,
-  credentials: true,
-}));
+if (isProduction) {
+  app.set('trust proxy', 1);
+}
 
 const allowedOrigins = [
   'http://localhost:5173',
-   FRONTEND_URL
+  'https://seven-solidarity.vercel.app',
+  FRONTEND_URL
 ];
 app.use((req, res, next) => {
   const origin = req.headers.origin;
@@ -56,20 +56,18 @@ mongoose.connect(MONGO_URI, {
     process.exit(1);
   });
 
-// const isProduction = process.env.NODE_ENV === 'production';
-
 app.use(session({
   secret: SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({ mongoUrl: MONGO_URI }),
+  proxy: isProduction,
   cookie: { 
-    // maxAge: 1000 * 60 * 60 * 24, // 24 hours
+    maxAge: 1000 * 60 * 60 * 24, // 24 hours
     httpOnly: true,
-    sameSite: 'none', // 'none' for cross-origin in prod, 'lax' for localhost
-    secure: true, // secure cookies only in production (HTTPS)
-    domain: '.onrender.com', // set cookie domain to root domain for production
-    path: '/', // ensure cookie is sent for all paths
+    sameSite: isProduction ? 'none' : 'lax',
+    secure: isProduction,
+    path: '/'
   }
 }));
 

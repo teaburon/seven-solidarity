@@ -11,10 +11,10 @@ export default function App(){
   const [user, setUser] = useState(null)
   const navigate = useNavigate()
 
-  useEffect(()=>{ fetch(API + '/auth/me', { credentials: 'include' })
+  useEffect(()=>{ fetch(API + '/auth/me', { credentials: 'include', cache: 'no-store' })
     .then(r=>r.json())
     .then(d=>setUser(d.user))
-    .catch(()=>{}); 
+    .catch(()=>{console.error("Failed to fetch user info")}); 
   }, [])
 
   return (

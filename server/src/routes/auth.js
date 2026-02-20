@@ -6,15 +6,20 @@ const router = express.Router();
 router.get('/discord', passport.authenticate('discord'));
 
 router.get('/discord/callback', (req, res, next) => {
+  console.log('OAuth callback started');
   passport.authenticate('discord', (err, user) => {
+    console.log('Passport strategy returned:', err ? err.message : 'ok', 'user:', user ? user.username : 'none');
     if (err || !user) {
       return res.redirect('/auth/failure');
     }
     req.session.regenerate(regenerateErr => {
+      console.log('Session regenerated:', regenerateErr ? regenerateErr.message : 'ok');
       if (regenerateErr) return next(regenerateErr);
       req.logIn(user, loginErr => {
+        console.log('req.logIn returned:', loginErr ? loginErr.message : 'ok');
         if (loginErr) return next(loginErr);
         req.session.save(() => {
+          console.log('Session saved, redirecting to:', process.env.FRONTEND_URL);
           const redirectUrl = process.env.FRONTEND_URL || '/';
           res
             .status(200)
@@ -45,7 +50,7 @@ router.get('/logout', (req, res, next) => {
 });
 
 router.get('/me', (req, res) => {
-  console.log('Auth check for user:', req.user ? req.user.username : 'none');
+  console.log('GET /auth/me - session:', req.sessionID, 'user:', req.user ? req.user.username : 'NONE', 'isAuth:', req.isAuthenticated?.());
   res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.set('Pragma', 'no-cache');
   res.set('Expires', '0');

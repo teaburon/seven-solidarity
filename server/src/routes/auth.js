@@ -12,7 +12,7 @@ router.get('/discord/callback', (req, res, next) => {
     if (err || !user) {
       return res.redirect('/auth/failure');
     }
-    req.logIn(user, loginErr => {
+    req.logIn(user, { keepSessionInfo: true }, loginErr => {
       console.log('req.logIn returned:', loginErr ? loginErr.message : 'ok', 'final session ID:', req.sessionID);
       if (loginErr) return next(loginErr);
       req.session.save(saveErr => {

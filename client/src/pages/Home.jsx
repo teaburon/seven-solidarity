@@ -5,58 +5,44 @@ import { get } from '../api'
 export default function Home(){
   const [list, setList] = useState([])
   const [q, setQ] = useState('')
-  const [tags, setTags] = useState('')
-  const [suggestions, setSuggestions] = useState([])
+  const [showTagFilters, setShowTagFilters] = useState(false)
+  const [availableTags, setAvailableTags] = useState([])
+  const [selectedTags, setSelectedTags] = useState([])
   const [error, setError] = useState('')
-
-  function uniqueTags(list) {
-    const out = []
-    const seen = new Set()
-    for (const rawTag of list) {
-      const tag = String(rawTag).trim()
-      if (!tag) continue
-      const key = tag.toLowerCase()
-      if (seen.has(key)) continue
-      seen.add(key)
-      out.push(tag)
-    }
-    return out
-  }
-
-  function selectedTags() {
-    return uniqueTags(tags.split(','))
-  }
 
   useEffect(() => { fetchList() }, [])
 
-  async function onTagsChange(value) {
-    setTags(value)
-    const parts = value.split(',')
-    const current = (parts[parts.length - 1] || '').trim()
-    if (!current) {
-      setSuggestions([])
-      return
-    }
+  async function loadTags() {
     try {
-      const list = await get(`/requests/tags?q=${encodeURIComponent(current)}`)
-      setSuggestions(Array.isArray(list) ? list : [])
+      const tags = await get('/requests/tags')
+      setAvailableTags(Array.isArray(tags) ? tags : [])
     } catch {
-      setSuggestions([])
+      setAvailableTags([])
     }
   }
 
-  function applySuggestion(tag) {
-    const parts = tags.split(',')
-    const prefix = parts.slice(0, -1)
-    const nextList = uniqueTags([...prefix, tag])
-    const next = nextList.join(', ')
-    setTags(next ? `${next}, ` : '')
-    setSuggestions([])
+  async function toggleTagFilters() {
+    const next = !showTagFilters
+    setShowTagFilters(next)
+    if (next && availableTags.length === 0) {
+      await loadTags()
+    }
   }
 
-  function removeTag(tagToRemove) {
-    const next = selectedTags().filter(tag => tag.toLowerCase() !== tagToRemove.toLowerCase())
-    setTags(next.length ? `${next.join(', ')}, ` : '')
+  function toggleTag(tag) {
+    setSelectedTags(prev =>
+      prev.some(t => t.toLowerCase() === tag.toLowerCase())
+        ? prev.filter(t => t.toLowerCase() !== tag.toLowerCase())
+        : [...prev, tag]
+    )
+  }
+
+  function removeSelectedTag(tagToRemove) {
+    setSelectedTags(prev => prev.filter(tag => tag.toLowerCase() !== tagToRemove.toLowerCase()))
+  }
+
+  function clearAllTags() {
+    setSelectedTags([])
   }
 
   async function fetchList(){
@@ -64,8 +50,7 @@ export default function Home(){
       setError('')
       const qs = new URLSearchParams()
       if (q) qs.set('q', q)
-      const unique = uniqueTags(tags.split(','))
-      if (unique.length) qs.set('tags', unique.join(','))
+      if (selectedTags.length) qs.set('tags', selectedTags.join(','))
       const query = qs.toString()
       const data = await get(`/requests${query ? `?${query}` : ''}`)
       setList(data)
@@ -77,57 +62,15 @@ export default function Home(){
   return (
     <div>
       {error && <div style={{ padding: 12, background: '#fee', color: '#c00', borderRadius: 6, marginBottom: 12 }}>{error}</div>}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 12, alignItems: 'flex-start' }}>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 12, alignItems: 'center' }}>
         <input placeholder="Search" value={q} onChange={e => setQ(e.target.value)} />
-        <div style={{ position: 'relative', width: 220, flexShrink: 0 }}>
-          <input
-            placeholder="tags (comma)"
-            value={tags}
-            onChange={e => onTagsChange(e.target.value)}
-            style={{ width: '100%' }}
-          />
-          {suggestions.length > 0 && (
-            <div
-              style={{
-                position: 'absolute',
-                top: 'calc(100% + 4px)',
-                left: 0,
-                right: 0,
-                border: '1px solid #ddd',
-                borderRadius: 6,
-                background: '#fff',
-                zIndex: 10
-              }}
-            >
-              {suggestions.map(tag => (
-                <button
-                  key={tag}
-                  type="button"
-                  onClick={() => applySuggestion(tag)}
-                  style={{
-                    display: 'block',
-                    width: '100%',
-                    textAlign: 'left',
-                    background: '#fff',
-                    color: '#0f172a',
-                    border: 'none',
-                    borderBottom: '1px solid #eee',
-                    borderRadius: 0,
-                    padding: 8,
-                    cursor: 'pointer'
-                  }}
-                >
-                  {tag}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        <button type="button" onClick={toggleTagFilters}>{showTagFilters ? 'Hide Filters' : 'Filter Tags'}</button>
         <button onClick={fetchList}>Search</button>
       </div>
-      {selectedTags().length > 0 && (
+
+      {selectedTags.length > 0 && (
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
-          {selectedTags().map(tag => (
+          {selectedTags.map(tag => (
             <span
               key={tag}
               style={{
@@ -144,7 +87,7 @@ export default function Home(){
               {tag}
               <button
                 type="button"
-                onClick={() => removeTag(tag)}
+                onClick={() => removeSelectedTag(tag)}
                 style={{
                   background: 'transparent',
                   color: '#334155',
@@ -159,8 +102,40 @@ export default function Home(){
               </button>
             </span>
           ))}
+          <button type="button" onClick={clearAllTags} style={{ background: 'transparent', color: '#2563eb', border: 'none', padding: 0, cursor: 'pointer' }}>
+            Clear All
+          </button>
         </div>
       )}
+
+      {showTagFilters && (
+        <div style={{ marginBottom: 12, border: '1px solid #ddd', borderRadius: 8, padding: 10, background: '#fff' }}>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {availableTags.length === 0 && <span style={{ fontSize: 12, color: '#64748b' }}>No tags yet.</span>}
+            {availableTags.map(tag => {
+              const selected = selectedTags.some(t => t.toLowerCase() === tag.toLowerCase())
+              return (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => toggleTag(tag)}
+                  style={{
+                    padding: '6px 10px',
+                    borderRadius: 999,
+                    border: selected ? '1px solid #2563eb' : '1px solid #cbd5e1',
+                    background: selected ? '#dbeafe' : '#f8fafc',
+                    color: '#0f172a',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {tag}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
       <ul>
         {list.map(r => (
           <li key={r._id} style={{ marginBottom: 10 }}>

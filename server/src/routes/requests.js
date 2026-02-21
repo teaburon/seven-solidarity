@@ -73,7 +73,7 @@ router.get('/tags', async (req, res) => {
       { $group: { _id: '$tags' } },
       { $project: { _id: 0, tag: '$_id' } },
       { $sort: { tag: 1 } },
-      { $limit: 20 }
+      { $limit: 200 }
     ];
 
     const results = await Request.aggregate(pipeline);

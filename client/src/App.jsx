@@ -12,15 +12,27 @@ export default function App(){
   const navigate = useNavigate()
 
   async function logout() {
-    try {
-      await fetch(API + '/auth/logout', {
-        method: 'POST',
-        credentials: 'include'
-      })
-    } finally {
-      setUser(null)
-      navigate('/')
+    const logoutRes = await fetch(API + '/auth/logout', {
+      method: 'POST',
+      credentials: 'include'
+    })
+    if (!logoutRes.ok) {
+      window.location.href = API + '/auth/logout'
+      return
     }
+
+    const meRes = await fetch(API + '/auth/me', {
+      credentials: 'include',
+      cache: 'no-store'
+    })
+    const meData = await meRes.json()
+    if (meData?.user) {
+      window.location.href = API + '/auth/logout'
+      return
+    }
+
+    setUser(null)
+    navigate('/')
   }
 
   useEffect(() => {

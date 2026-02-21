@@ -46,17 +46,27 @@ router.post('/exchange-token', async (req, res) => {
 
 router.get('/failure', (req, res) => res.status(401).json({ error: 'Authentication failed' }));
 
+function clearSessionCookie(res) {
+  res.clearCookie('connect.sid', {
+    path: '/',
+    sameSite: 'none',
+    secure: true,
+    httpOnly: true,
+    partitioned: true
+  });
+  res.clearCookie('connect.sid', {
+    path: '/',
+    sameSite: 'lax',
+    secure: false,
+    httpOnly: true
+  });
+}
+
 router.post('/logout', (req, res, next) => {
   req.logout(function(err) {
     if (err) return next(err);
     req.session.destroy(() => {
-      res.clearCookie('connect.sid', {
-        path: '/',
-        sameSite: 'none',
-        secure: true,
-        httpOnly: true,
-        partitioned: true
-      });
+      clearSessionCookie(res);
       res.json({ ok: true });
     });
   });
@@ -66,13 +76,7 @@ router.get('/logout', (req, res, next) => {
   req.logout(function(err) {
     if (err) return next(err);
     req.session.destroy(() => {
-      res.clearCookie('connect.sid', {
-        path: '/',
-        sameSite: 'none',
-        secure: true,
-        httpOnly: true,
-        partitioned: true
-      });
+      clearSessionCookie(res);
       res.redirect(FRONTEND_URL);
     });
   });

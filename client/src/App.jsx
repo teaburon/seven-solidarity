@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Routes, Route, Link, useNavigate } from 'react-router-dom'
+import { Routes, Route, Link } from 'react-router-dom'
 import Home from './pages/Home'
 import RequestForm from './pages/RequestForm'
 import RequestView from './pages/RequestView'
@@ -9,7 +9,6 @@ const API = import.meta.env.VITE_API_URL || 'http://localhost:4000'
 
 export default function App(){
   const [user, setUser] = useState(null)
-  const navigate = useNavigate()
 
   useEffect(() => {
     async function initAuth() {

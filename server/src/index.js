@@ -15,6 +15,11 @@ const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 const isProduction = process.env.NODE_ENV === 'production' || !FRONTEND_URL.includes('localhost');
 
 const app = express();
+app.use(cors({
+  origin: FRONTEND_URL,
+  credentials: true
+}));
+
 app.use(express.json());
 if (isProduction) {
   app.set('trust proxy', 1);

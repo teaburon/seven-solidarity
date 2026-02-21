@@ -50,18 +50,7 @@ export default function PublicProfile() {
           <h3 style={{ marginBottom: 8 }}>Can Offer</h3>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {profile.offers.map(item => (
-              <span key={item} style={{ padding: '5px 10px', borderRadius: 999, background: '#e2e8f0', fontSize: 12 }}>{item}</span>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {profile.waysToHelp?.length > 0 && (
-        <section style={{ marginTop: 14 }}>
-          <h3 style={{ marginBottom: 8 }}>Ways to Help</h3>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {profile.waysToHelp.map(item => (
-              <span key={item} style={{ padding: '5px 10px', borderRadius: 999, background: '#dbeafe', fontSize: 12 }}>{item}</span>
+              <span key={item} style={{ padding: '5px 10px', borderRadius: 999, background: '#fef3c7', fontSize: 12 }}>{item}</span>
             ))}
           </div>
         </section>

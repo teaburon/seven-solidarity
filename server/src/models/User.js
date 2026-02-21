@@ -26,8 +26,6 @@ const UserSchema = new mongoose.Schema({
   },
   skills: [{ type: String }],
   offers: [{ type: String }],
-  waysToHelp: [{ type: String }],
-  skills: [{ type: String }],
   openToHelp: { type: Boolean, default: true },
   
   // For future gamification features

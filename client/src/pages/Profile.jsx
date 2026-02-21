@@ -37,6 +37,8 @@ export default function Profile({ user, setUser }) {
   const [cityState, setCityState] = useState('')
   const [skillSuggestions, setSkillSuggestions] = useState([])
   const [availableSkills, setAvailableSkills] = useState([])
+  const [offerSuggestions, setOfferSuggestions] = useState([])
+  const [availableOffers, setAvailableOffers] = useState([])
   const [form, setForm] = useState({
     displayName: '',
     zipcode: '',
@@ -45,13 +47,10 @@ export default function Profile({ user, setUser }) {
     contactMethods: {},
     skills: [],
     skillsInput: '',
-    offersText: '',
-    waysToHelpText: '',
+    offers: [],
+    offersInput: '',
     openToHelp: true
   })
-
-  const offersPreview = useMemo(() => textToUniqueList(form.offersText), [form.offersText])
-  const waysPreview = useMemo(() => textToUniqueList(form.waysToHelpText), [form.waysToHelpText])
 
   useEffect(() => {
     if (!user) {
@@ -60,6 +59,7 @@ export default function Profile({ user, setUser }) {
     }
     loadProfile()
     loadAvailableSkills()
+    loadAvailableOffers()
   }, [user, navigate])
 
   async function loadAvailableSkills() {
@@ -68,6 +68,15 @@ export default function Profile({ user, setUser }) {
       setAvailableSkills(data.skills || [])
     } catch (err) {
       console.error('Failed to load skills:', err.message)
+    }
+  }
+
+  async function loadAvailableOffers() {
+    try {
+      const data = await get('/profile/agg/offers')
+      setAvailableOffers(data.offers || [])
+    } catch (err) {
+      console.error('Failed to load offers:', err.message)
     }
   }
 
@@ -85,8 +94,8 @@ export default function Profile({ user, setUser }) {
         contactMethods: profile.contactMethods || {},
         skills: profile.skills || [],
         skillsInput: '',
-        offersText: listToText(profile.offers),
-        waysToHelpText: listToText(profile.waysToHelp),
+        offers: profile.offers || [],
+        offersInput: '',
         openToHelp: profile.openToHelp !== false
       })
       setCityState(profile.city && profile.state ? `${profile.city}, ${profile.state}` : '')
@@ -159,6 +168,39 @@ export default function Profile({ user, setUser }) {
     }))
   }
 
+  function handleOffersInput(value) {
+    updateField('offersInput', value)
+    // Filter suggestions
+    if (value.trim()) {
+      const query = value.toLowerCase()
+      const suggestions = availableOffers
+        .filter(offer => offer.toLowerCase().includes(query) && !form.offers.includes(offer))
+        .slice(0, 5)
+      setOfferSuggestions(suggestions)
+    } else {
+      setOfferSuggestions([])
+    }
+  }
+
+  function addOffer(offer) {
+    const trimmed = String(offer || '').trim()
+    if (trimmed && !form.offers.includes(trimmed)) {
+      setForm(prev => ({
+        ...prev,
+        offers: [...prev.offers, trimmed],
+        offersInput: ''
+      }))
+      setOfferSuggestions([])
+    }
+  }
+
+  function removeOffer(offerToRemove) {
+    setForm(prev => ({
+      ...prev,
+      offers: prev.offers.filter(o => o !== offerToRemove)
+    }))
+  }
+
   async function saveProfile(e) {
     e.preventDefault()
     try {
@@ -173,8 +215,7 @@ export default function Profile({ user, setUser }) {
         bio: form.bio,
         contactMethods: form.contactMethods,
         skills: form.skills,
-        offers: textToUniqueList(form.offersText),
-        waysToHelp: textToUniqueList(form.waysToHelpText),
+        offers: form.offers,
         openToHelp: form.openToHelp
       }
 
@@ -183,9 +224,8 @@ export default function Profile({ user, setUser }) {
 
       setForm(prev => ({
         ...prev,
-        offersText: listToText(updated.offers),
-        waysToHelpText: listToText(updated.waysToHelp),
-        skills: updated.skills || []
+        skills: updated.skills || [],
+        offers: updated.offers || []
       }))
       setCityState(updated.city && updated.state ? `${updated.city}, ${updated.state}` : '')
 
@@ -299,13 +339,46 @@ export default function Profile({ user, setUser }) {
         </div>
 
         <div>
-          <input value={form.offersText} onChange={e => updateField('offersText', e.target.value)} placeholder="rides, groceries, translation, childcare" />
-          <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>What you can offer (comma separated)</div>
-        </div>
-
-        <div>
-          <input value={form.waysToHelpText} onChange={e => updateField('waysToHelpText', e.target.value)} placeholder="phone banking, deliveries, organizing, mentoring" />
-          <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>Ways you can help (comma separated)</div>
+          <div style={{ position: 'relative' }}>
+            <input
+              value={form.offersInput}
+              onChange={e => handleOffersInput(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  addOffer(form.offersInput)
+                }
+              }}
+              placeholder="Type what you can offer (e.g., rides, groceries, childcare)"
+              style={{ width: '100%' }}
+            />
+            {offerSuggestions.length > 0 && (
+              <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'white', border: '1px solid #e2e8f0', borderTop: 'none', borderRadius: '0 0 6px 6px', zIndex: 10 }}>
+                {offerSuggestions.map(offer => (
+                  <div
+                    key={offer}
+                    onClick={() => addOffer(offer)}
+                    style={{ padding: '8px 12px', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', hover: { background: '#f8fafc' } }}
+                    onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'white'}
+                  >
+                    {offer}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
+            {form.offers.map(offer => (
+              <span key={offer} style={{ padding: '4px 10px', background: '#fef3c7', border: '1px solid #fde68a', borderRadius: 999, fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                {offer}
+                <button type="button" onClick={() => removeOffer(offer)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: 14, color: '#f59e0b' }}>
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+          <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>What you can offer (click suggestions or press Enter)</div>
         </div>
 
         <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
@@ -332,8 +405,6 @@ export default function Profile({ user, setUser }) {
             {!form.locationLabel && !cityState && 'Location not set'}
           </div>
           {form.bio && <p style={{ marginBottom: 8 }}>{form.bio}</p>}
-          {offersPreview.length > 0 && <div style={{ marginBottom: 6 }}><strong>Offers:</strong> {offersPreview.join(', ')}</div>}
-          {waysPreview.length > 0 && <div style={{ marginBottom: 6 }}><strong>Ways to help:</strong> {waysPreview.join(', ')}</div>}
           {form.skills.length > 0 && (
             <div style={{ marginBottom: 10 }}>
               <strong>Skills:</strong>
@@ -341,6 +412,18 @@ export default function Profile({ user, setUser }) {
                 {form.skills.map(skill => (
                   <span key={skill} style={{ padding: '4px 10px', background: '#f3e8ff', borderRadius: 999, fontSize: 12 }}>
                     {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          {form.offers.length > 0 && (
+            <div style={{ marginBottom: 10 }}>
+              <strong>Can offer:</strong>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 6 }}>
+                {form.offers.map(offer => (
+                  <span key={offer} style={{ padding: '4px 10px', background: '#fef3c7', borderRadius: 999, fontSize: 12 }}>
+                    {offer}
                   </span>
                 ))}
               </div>

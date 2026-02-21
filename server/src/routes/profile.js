@@ -1,49 +1,19 @@
 const express = require('express');
 const User = require('../models/User');
+const zipcodes = require('../data/zipcodes.json');
 
 const router = express.Router();
 
-// Simple US zipcode to city/state lookup (can be expanded with external API)
-const ZIPCODE_DATABASE = {
-  '98101': { city: 'Seattle', state: 'WA' },
-  '98102': { city: 'Seattle', state: 'WA' },
-  '98103': { city: 'Seattle', state: 'WA' },
-  '98104': { city: 'Seattle', state: 'WA' },
-  '98105': { city: 'Seattle', state: 'WA' },
-  '98106': { city: 'Seattle', state: 'WA' },
-  '98107': { city: 'Seattle', state: 'WA' },
-  '98108': { city: 'Seattle', state: 'WA' },
-  '98109': { city: 'Seattle', state: 'WA' },
-  '98110': { city: 'Bainbridge Island', state: 'WA' },
-  '98111': { city: 'Seattle', state: 'WA' },
-  '98112': { city: 'Seattle', state: 'WA' },
-  '98113': { city: 'Seattle', state: 'WA' },
-  '98114': { city: 'Seattle', state: 'WA' },
-  '98115': { city: 'Seattle', state: 'WA' },
-  '98116': { city: 'Seattle', state: 'WA' },
-  '98117': { city: 'Seattle', state: 'WA' },
-  '98118': { city: 'Seattle', state: 'WA' },
-  '98119': { city: 'Seattle', state: 'WA' },
-  '98121': { city: 'Seattle', state: 'WA' },
-  '98122': { city: 'Seattle', state: 'WA' },
-  '98125': { city: 'Seattle', state: 'WA' },
-  '98126': { city: 'Seattle', state: 'WA' },
-  '10001': { city: 'New York', state: 'NY' },
-  '10002': { city: 'New York', state: 'NY' },
-  '10003': { city: 'New York', state: 'NY' },
-  '10004': { city: 'New York', state: 'NY' },
-  '10005': { city: 'New York', state: 'NY' },
-  '10006': { city: 'New York', state: 'NY' },
-  '10007': { city: 'New York', state: 'NY' },
-  '90001': { city: 'Los Angeles', state: 'CA' },
-  '90002': { city: 'Los Angeles', state: 'CA' },
-  '60601': { city: 'Chicago', state: 'IL' },
-  '60602': { city: 'Chicago', state: 'IL' }
-};
+// Build zipcode lookup map
+const ZIPCODE_MAP = new Map();
+for (const entry of zipcodes) {
+  const zip = String(entry.zip_code).padStart(5, '0');
+  ZIPCODE_MAP.set(zip, { city: entry.city, state: entry.state });
+}
 
 function lookupCityState(zipcode) {
-  const zip = String(zipcode || '').trim();
-  return ZIPCODE_DATABASE[zip] || null;
+  const zip = String(zipcode || '').trim().padStart(5, '0');
+  return ZIPCODE_MAP.get(zip) || null;
 }
 
 function ensureAuth(req, res, next) {
@@ -86,7 +56,6 @@ function sanitizeProfile(user) {
     contactMethods: user.contactMethods || {},
     skills: user.skills || [],
     offers: user.offers || [],
-    waysToHelp: user.waysToHelp || [],
     openToHelp: user.openToHelp,
     requests: user.requests || [],
     createdAt: user.createdAt
@@ -111,7 +80,6 @@ router.put('/me', ensureAuth, async (req, res) => {
     contactMethods,
     skills,
     offers,
-    waysToHelp,
     openToHelp
   } = req.body;
 
@@ -140,7 +108,6 @@ router.put('/me', ensureAuth, async (req, res) => {
   }
   if (skills !== undefined) user.skills = normalizeList(skills);
   if (offers !== undefined) user.offers = normalizeList(offers);
-  if (waysToHelp !== undefined) user.waysToHelp = normalizeList(waysToHelp);
   if (openToHelp !== undefined) user.openToHelp = Boolean(openToHelp);
 
   await user.save();
@@ -177,6 +144,21 @@ router.get('/agg/skills', async (req, res) => {
     res.json({ skills });
   } catch (err) {
     res.json({ skills: [] });
+  }
+});
+
+// Offers aggregation endpoint - returns all unique offers across all users
+router.get('/agg/offers', async (req, res) => {
+  try {
+    const result = await User.aggregate([
+      { $unwind: '$offers' },
+      { $group: { _id: null, offers: { $addToSet: '$offers' } } },
+      { $project: { offers: { $sort: '$offers' } } }
+    ]);
+    const offers = result[0]?.offers || [];
+    res.json({ offers });
+  } catch (err) {
+    res.json({ offers: [] });
   }
 });
 

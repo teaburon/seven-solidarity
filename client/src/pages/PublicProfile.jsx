@@ -2,6 +2,15 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { get } from '../api'
 
+const CONTACT_METHODS = [
+  { key: 'discord', label: 'Discord' },
+  { key: 'email', label: 'Email' },
+  { key: 'phone', label: 'Phone' },
+  { key: 'signal', label: 'Signal' },
+  { key: 'telegram', label: 'Telegram' },
+  { key: 'other', label: 'Other' }
+]
+
 export default function PublicProfile() {
   const { id } = useParams()
   const [profile, setProfile] = useState(null)
@@ -27,8 +36,12 @@ export default function PublicProfile() {
   return (
     <div style={{ maxWidth: 760 }}>
       <h2>{profile.displayName || profile.username}</h2>
-      {profile.locationLabel && <div style={{ color: '#475569', marginBottom: 8 }}>{profile.locationLabel}</div>}
-      {!profile.locationLabel && profile.zipcode && <div style={{ color: '#475569', marginBottom: 8 }}>Zip code: {profile.zipcode}</div>}
+      <div style={{ color: '#475569', marginBottom: 8 }}>
+        {profile.locationLabel && profile.city && profile.state && `${profile.locationLabel} (${profile.city}, ${profile.state})`}
+        {profile.locationLabel && !profile.city && profile.locationLabel}
+        {!profile.locationLabel && profile.city && profile.state && `${profile.city}, ${profile.state}`}
+        {!profile.locationLabel && !profile.city && profile.zipcode && `Zip: ${profile.zipcode}`}
+      </div>
 
       {profile.bio && <p>{profile.bio}</p>}
 
@@ -54,7 +67,22 @@ export default function PublicProfile() {
         </section>
       )}
 
-      {profile.contact && (
+      {(profile.contactMethods && Object.values(profile.contactMethods).some(v => v)) && (
+        <section style={{ marginTop: 14 }}>
+          <h3 style={{ marginBottom: 8 }}>Contact</h3>
+          <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+            {CONTACT_METHODS.map(method =>
+              profile.contactMethods[method.key] && (
+                <li key={method.key} style={{ margin: '4px 0' }}>
+                  <strong>{method.label}:</strong> {profile.contactMethods[method.key]}
+                </li>
+              )
+            )}
+          </ul>
+        </section>
+      )}
+
+      {profile.contact && !profile.contactMethods && (
         <section style={{ marginTop: 14 }}>
           <h3 style={{ marginBottom: 8 }}>Contact</h3>
           <div>{profile.contact}</div>

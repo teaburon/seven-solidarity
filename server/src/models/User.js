@@ -13,8 +13,19 @@ const UserSchema = new mongoose.Schema({
   responses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Response' }],
   email: { type: String },
   zipcode: { type: String },
+  city: { type: String },
+  state: { type: String },
   locationLabel: { type: String },
   bio: { type: String, maxlength: 500 },
+  contactMethods: {
+    discord: { type: String },
+    email: { type: String },
+    phone: { type: String },
+    signal: { type: String },
+    telegram: { type: String },
+    other: { type: String }
+  },
+  // Keep contact for backward compatibility during migration
   contact: { type: String, maxlength: 200 },
   offers: [{ type: String }],
   waysToHelp: [{ type: String }],

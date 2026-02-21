@@ -62,24 +62,6 @@ export default function Home({ user }){
   return (
     <div>
       {error && <div style={{ padding: 12, background: '#fee', color: '#c00', borderRadius: 6, marginBottom: 12 }}>{error}</div>}
-      {user && (
-        <div style={{ marginBottom: 12 }}>
-          <Link
-            to="/profile"
-            style={{
-              display: 'inline-block',
-              padding: '8px 12px',
-              borderRadius: 999,
-              background: '#dbeafe',
-              color: '#1e3a8a',
-              textDecoration: 'none',
-              fontWeight: 600
-            }}
-          >
-            My Profile
-          </Link>
-        </div>
-      )}
       <div style={{ display: 'flex', gap: 8, marginBottom: 12, alignItems: 'center' }}>
         <input placeholder="Search" value={q} onChange={e => setQ(e.target.value)} />
         <button type="button" onClick={toggleTagFilters}>{showTagFilters ? 'Hide Filters' : 'Filter Tags'}</button>

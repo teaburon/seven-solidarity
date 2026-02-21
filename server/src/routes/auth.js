@@ -19,7 +19,9 @@ router.get('/discord/callback', (req, res, next) => {
     // Generate JWT token instead of relying on session cookies
     const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '24h' });
     console.log('Generated JWT token for user:', user.username);
-    res.redirect(`${FRONTEND_URL}?auth_token=${token}`);
+    const redirectUrl = `${FRONTEND_URL}?auth_token=${token}`;
+    console.log('Redirecting to:', redirectUrl.substring(0, 100) + '...');
+    res.redirect(redirectUrl);
   })(req, res, next);
 });
 

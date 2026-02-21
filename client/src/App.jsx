@@ -80,7 +80,7 @@ export default function App(){
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h1><Link to="/">S.E.V.E.N. SOLIDARITY</Link></h1>
         <nav>
-          <Link to="/">Home</Link> {' | '}
+          <a href="/">Home</a> {' | '}
           <Link to="/new">Create</Link> {' | '}
           {user ? (
             <>

@@ -79,7 +79,7 @@ export default function Home(){
       {error && <div style={{ padding: 12, background: '#fee', color: '#c00', borderRadius: 6, marginBottom: 12 }}>{error}</div>}
       <div style={{ display: 'flex', gap: 8, marginBottom: 12, alignItems: 'flex-start' }}>
         <input placeholder="Search" value={q} onChange={e => setQ(e.target.value)} />
-        <div style={{ position: 'relative', width: 300 }}>
+        <div style={{ position: 'relative', width: 220, flexShrink: 0 }}>
           <input
             placeholder="tags (comma)"
             value={tags}

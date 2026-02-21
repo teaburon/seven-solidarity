@@ -6,27 +6,27 @@ const router = express.Router();
 router.get('/discord', passport.authenticate('discord'));
 
 router.get('/discord/callback', (req, res, next) => {
-  console.log('OAuth callback started');
+  console.log('OAuth callback started, session ID:', req.sessionID);
   passport.authenticate('discord', (err, user) => {
     console.log('Passport strategy returned:', err ? err.message : 'ok', 'user:', user ? user.username : 'none');
     if (err || !user) {
       return res.redirect('/auth/failure');
     }
-    req.session.regenerate(regenerateErr => {
-      console.log('Session regenerated:', regenerateErr ? regenerateErr.message : 'ok');
-      if (regenerateErr) return next(regenerateErr);
-      req.logIn(user, loginErr => {
-        console.log('req.logIn returned:', loginErr ? loginErr.message : 'ok');
-        if (loginErr) return next(loginErr);
-        req.session.save(() => {
-          console.log('Session saved, redirecting to:', process.env.FRONTEND_URL);
-          const redirectUrl = process.env.FRONTEND_URL || '/';
-          res
-            .status(200)
-            .set('Content-Type', 'text/html; charset=utf-8')
-            .set('Cache-Control', 'no-store')
-            .send(`<!doctype html><html><head><meta http-equiv="refresh" content="0;url=${redirectUrl}"></head><body><script>window.location.replace(${JSON.stringify(redirectUrl)});</script>Redirecting...</body></html>`);
-        });
+    req.logIn(user, loginErr => {
+      console.log('req.logIn returned:', loginErr ? loginErr.message : 'ok', 'final session ID:', req.sessionID);
+      if (loginErr) return next(loginErr);
+      req.session.save(saveErr => {
+        if (saveErr) {
+          console.error('Session save error:', saveErr.message);
+          return next(saveErr);
+        }
+        console.log('Session saved, redirecting to:', process.env.FRONTEND_URL);
+        const redirectUrl = process.env.FRONTEND_URL || '/';
+        res
+          .status(200)
+          .set('Content-Type', 'text/html; charset=utf-8')
+          .set('Cache-Control', 'no-store')
+          .send(`<!doctype html><html><head><meta http-equiv="refresh" content="0;url=${redirectUrl}"></head><body><script>window.location.replace(${JSON.stringify(redirectUrl)});</script>Redirecting...</body></html>`);
       });
     });
   })(req, res, next);

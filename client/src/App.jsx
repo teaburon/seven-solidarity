@@ -88,7 +88,15 @@ export default function App(){
               <button
                 type="button"
                 onClick={logout}
-                style={{ marginLeft: 8, background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+                style={{
+                  marginLeft: 8,
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
+                  cursor: 'pointer',
+                  color: '#2563eb',
+                  textDecoration: 'underline'
+                }}
               >
                 Logout
               </button>

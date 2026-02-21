@@ -35,12 +35,16 @@ export default function Profile({ user, setUser }) {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [cityState, setCityState] = useState('')
+  const [skillSuggestions, setSkillSuggestions] = useState([])
+  const [availableSkills, setAvailableSkills] = useState([])
   const [form, setForm] = useState({
     displayName: '',
     zipcode: '',
     locationLabel: '',
     bio: '',
     contactMethods: {},
+    skills: [],
+    skillsInput: '',
     offersText: '',
     waysToHelpText: '',
     openToHelp: true
@@ -55,7 +59,17 @@ export default function Profile({ user, setUser }) {
       return
     }
     loadProfile()
-  }, [user])
+    loadAvailableSkills()
+  }, [user, navigate])
+
+  async function loadAvailableSkills() {
+    try {
+      const data = await get('/profile/agg/skills')
+      setAvailableSkills(data.skills || [])
+    } catch (err) {
+      console.error('Failed to load skills:', err.message)
+    }
+  }
 
   async function loadProfile() {
     try {
@@ -69,6 +83,8 @@ export default function Profile({ user, setUser }) {
         locationLabel: profile.locationLabel || '',
         bio: profile.bio || '',
         contactMethods: profile.contactMethods || {},
+        skills: profile.skills || [],
+        skillsInput: '',
         offersText: listToText(profile.offers),
         waysToHelpText: listToText(profile.waysToHelp),
         openToHelp: profile.openToHelp !== false
@@ -92,6 +108,57 @@ export default function Profile({ user, setUser }) {
     }))
   }
 
+  function handleZipcodeChange(zipcode) {
+    updateField('zipcode', zipcode)
+    // Live lookup city/state
+    if (zipcode.length >= 5) {
+      get(`/profile/lookup/city-state/${zipcode}`)
+        .then(data => {
+          if (data.city && data.state) {
+            setCityState(`${data.city}, ${data.state}`)
+          } else {
+            setCityState('')
+          }
+        })
+        .catch(() => setCityState(''))
+    } else {
+      setCityState('')
+    }
+  }
+
+  function handleSkillsInput(value) {
+    updateField('skillsInput', value)
+    // Filter suggestions
+    if (value.trim()) {
+      const query = value.toLowerCase()
+      const suggestions = availableSkills
+        .filter(skill => skill.toLowerCase().includes(query) && !form.skills.includes(skill))
+        .slice(0, 5)
+      setSkillSuggestions(suggestions)
+    } else {
+      setSkillSuggestions([])
+    }
+  }
+
+  function addSkill(skill) {
+    const trimmed = String(skill || '').trim()
+    if (trimmed && !form.skills.includes(trimmed)) {
+      setForm(prev => ({
+        ...prev,
+        skills: [...prev.skills, trimmed],
+        skillsInput: ''
+      }))
+      setSkillSuggestions([])
+    }
+  }
+
+  function removeSkill(skillToRemove) {
+    setForm(prev => ({
+      ...prev,
+      skills: prev.skills.filter(s => s !== skillToRemove)
+    }))
+  }
+
   async function saveProfile(e) {
     e.preventDefault()
     try {
@@ -105,6 +172,7 @@ export default function Profile({ user, setUser }) {
         locationLabel: form.locationLabel,
         bio: form.bio,
         contactMethods: form.contactMethods,
+        skills: form.skills,
         offers: textToUniqueList(form.offersText),
         waysToHelp: textToUniqueList(form.waysToHelpText),
         openToHelp: form.openToHelp
@@ -116,7 +184,8 @@ export default function Profile({ user, setUser }) {
       setForm(prev => ({
         ...prev,
         offersText: listToText(updated.offers),
-        waysToHelpText: listToText(updated.waysToHelp)
+        waysToHelpText: listToText(updated.waysToHelp),
+        skills: updated.skills || []
       }))
       setCityState(updated.city && updated.state ? `${updated.city}, ${updated.state}` : '')
 
@@ -156,7 +225,7 @@ export default function Profile({ user, setUser }) {
         </div>
 
         <div>
-          <input value={form.zipcode} onChange={e => updateField('zipcode', e.target.value)} placeholder="e.g. 98101" />
+          <input value={form.zipcode} onChange={e => handleZipcodeChange(e.target.value)} placeholder="e.g. 98101" />
           <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
             Zip code {cityState && `(${cityState})`}
           </div>
@@ -184,6 +253,49 @@ export default function Profile({ user, setUser }) {
               <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{method.label}</div>
             </div>
           ))}
+        </div>
+
+        <div>
+          <div style={{ position: 'relative' }}>
+            <input
+              value={form.skillsInput}
+              onChange={e => handleSkillsInput(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  addSkill(form.skillsInput)
+                }
+              }}
+              placeholder="Type a skill (e.g., carpentry, cooking, tech support)"
+              style={{ width: '100%' }}
+            />
+            {skillSuggestions.length > 0 && (
+              <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'white', border: '1px solid #e2e8f0', borderTop: 'none', borderRadius: '0 0 6px 6px', zIndex: 10 }}>
+                {skillSuggestions.map(skill => (
+                  <div
+                    key={skill}
+                    onClick={() => addSkill(skill)}
+                    style={{ padding: '8px 12px', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', hover: { background: '#f8fafc' } }}
+                    onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'white'}
+                  >
+                    {skill}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
+            {form.skills.map(skill => (
+              <span key={skill} style={{ padding: '4px 10px', background: '#dbeafe', border: '1px solid #bfdbfe', borderRadius: 999, fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                {skill}
+                <button type="button" onClick={() => removeSkill(skill)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: 14, color: '#3b82f6' }}>
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+          <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>Skills (click suggestions or press Enter)</div>
         </div>
 
         <div>
@@ -222,6 +334,18 @@ export default function Profile({ user, setUser }) {
           {form.bio && <p style={{ marginBottom: 8 }}>{form.bio}</p>}
           {offersPreview.length > 0 && <div style={{ marginBottom: 6 }}><strong>Offers:</strong> {offersPreview.join(', ')}</div>}
           {waysPreview.length > 0 && <div style={{ marginBottom: 6 }}><strong>Ways to help:</strong> {waysPreview.join(', ')}</div>}
+          {form.skills.length > 0 && (
+            <div style={{ marginBottom: 10 }}>
+              <strong>Skills:</strong>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 6 }}>
+                {form.skills.map(skill => (
+                  <span key={skill} style={{ padding: '4px 10px', background: '#f3e8ff', borderRadius: 999, fontSize: 12 }}>
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
           {Object.values(form.contactMethods).some(v => v) && (
             <div style={{ marginBottom: 8 }}>
               <strong>Contact:</strong>

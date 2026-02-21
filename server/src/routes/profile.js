@@ -84,16 +84,17 @@ function sanitizeProfile(user) {
     locationLabel: user.locationLabel || '',
     bio: user.bio || '',
     contactMethods: user.contactMethods || {},
-    contact: user.contact || '', // Keep for backward compatibility
+    skills: user.skills || [],
     offers: user.offers || [],
     waysToHelp: user.waysToHelp || [],
     openToHelp: user.openToHelp,
+    requests: user.requests || [],
     createdAt: user.createdAt
   };
 }
 
 router.get('/me', ensureAuth, async (req, res) => {
-  const user = await User.findById(req.user._id);
+  const user = await User.findById(req.user._id).populate('requests');
   if (!user) return res.status(404).json({ error: 'User not found' });
   res.json({ profile: sanitizeProfile(user) });
 });
@@ -108,6 +109,7 @@ router.put('/me', ensureAuth, async (req, res) => {
     locationLabel,
     bio,
     contactMethods,
+    skills,
     offers,
     waysToHelp,
     openToHelp
@@ -136,18 +138,46 @@ router.put('/me', ensureAuth, async (req, res) => {
       }
     }
   }
+  if (skills !== undefined) user.skills = normalizeList(skills);
   if (offers !== undefined) user.offers = normalizeList(offers);
   if (waysToHelp !== undefined) user.waysToHelp = normalizeList(waysToHelp);
   if (openToHelp !== undefined) user.openToHelp = Boolean(openToHelp);
 
   await user.save();
+  const populated = await user.populate('requests');
+  res.json({ profile: sanitizeProfile(populated) });
+});
+
+// Zipcode lookup endpoint
+router.get('/lookup/city-state/:zipcode', (req, res) => {
+  const lookup = lookupCityState(req.params.zipcode);
+  if (lookup) {
+    res.json({ city: lookup.city, state: lookup.state });
+  } else {
+    res.json({ city: '', state: '' });
+  }
+});
+
+// Public profile GET - must be after '/lookup/' to avoid conflicts
+router.get('/:id', async (req, res) => {
+  const user = await User.findById(req.params.id).populate('requests');
+  if (!user) return res.status(404).json({ error: 'User not found' });
   res.json({ profile: sanitizeProfile(user) });
 });
 
-router.get('/:id', async (req, res) => {
-  const user = await User.findById(req.params.id);
-  if (!user) return res.status(404).json({ error: 'User not found' });
-  res.json({ profile: sanitizeProfile(user) });
+// Skills aggregation endpoint - returns all unique skills across all users
+router.get('/agg/skills', async (req, res) => {
+  try {
+    const result = await User.aggregate([
+      { $unwind: '$skills' },
+      { $group: { _id: null, skills: { $addToSet: '$skills' } } },
+      { $project: { skills: { $sort: '$skills' } } }
+    ]);
+    const skills = result[0]?.skills || [];
+    res.json({ skills });
+  } catch (err) {
+    res.json({ skills: [] });
+  }
 });
 
 module.exports = router;

@@ -67,6 +67,17 @@ export default function PublicProfile() {
         </section>
       )}
 
+      {profile.skills?.length > 0 && (
+        <section style={{ marginTop: 14 }}>
+          <h3 style={{ marginBottom: 8 }}>Skills</h3>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {profile.skills.map(item => (
+              <span key={item} style={{ padding: '5px 10px', borderRadius: 999, background: '#f3e8ff', fontSize: 12 }}>{item}</span>
+            ))}
+          </div>
+        </section>
+      )}
+
       {(profile.contactMethods && Object.values(profile.contactMethods).some(v => v)) && (
         <section style={{ marginTop: 14 }}>
           <h3 style={{ marginBottom: 8 }}>Contact</h3>
@@ -86,6 +97,32 @@ export default function PublicProfile() {
         <section style={{ marginTop: 14 }}>
           <h3 style={{ marginBottom: 8 }}>Contact</h3>
           <div>{profile.contact}</div>
+        </section>
+      )}
+
+      {profile.requests?.length > 0 && (
+        <section style={{ marginTop: 20 }}>
+          <h3 style={{ marginBottom: 12 }}>Requests ({profile.requests.length})</h3>
+          <div style={{ display: 'grid', gap: 12 }}>
+            {profile.requests.map(request => (
+              <div key={request._id} style={{ padding: 12, border: '1px solid #e2e8f0', borderRadius: 6, background: '#f8fafc' }}>
+                <div style={{ fontSize: 14, fontWeight: 500 }}>{request.title}</div>
+                {request.description && <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>{request.description}</div>}
+                {request.tags?.length > 0 && (
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
+                    {request.tags.map(tag => (
+                      <span key={tag} style={{ fontSize: 11, padding: '2px 6px', background: '#e0e7ff', borderRadius: 4 }}>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 6 }}>
+                  {request.status === 'open' ? '🟢 Open' : '🔴 Closed'} • {new Date(request.createdAt).toLocaleDateString()}
+                </div>
+              </div>
+            ))}
+          </div>
         </section>
       )}
     </div>

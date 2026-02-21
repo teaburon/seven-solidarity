@@ -11,7 +11,6 @@ const UserSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
   requests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Request' }],
   responses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Response' }],
-  email: { type: String },
   zipcode: { type: String },
   city: { type: String },
   state: { type: String },
@@ -25,8 +24,7 @@ const UserSchema = new mongoose.Schema({
     telegram: { type: String },
     other: { type: String }
   },
-  // Keep contact for backward compatibility during migration
-  contact: { type: String, maxlength: 200 },
+  skills: [{ type: String }],
   offers: [{ type: String }],
   waysToHelp: [{ type: String }],
   skills: [{ type: String }],

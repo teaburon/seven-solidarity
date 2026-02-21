@@ -14,7 +14,18 @@ function normalizeTags(tags) {
     : typeof tags === 'string'
       ? tags.split(',')
       : [];
-  return list.map(tag => String(tag).trim()).filter(Boolean);
+
+  const unique = [];
+  const seen = new Set();
+  for (const rawTag of list) {
+    const tag = String(rawTag).trim();
+    if (!tag) continue;
+    const key = tag.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    unique.push(tag);
+  }
+  return unique;
 }
 
 // Create request

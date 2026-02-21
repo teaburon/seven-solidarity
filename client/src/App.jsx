@@ -109,7 +109,7 @@ export default function App(){
         </nav>
       </header>
 
-      <main style={{ marginTop: 20 }}>
+      <main style={{ marginTop: 20, paddingLeft: 'clamp(16px, 4vw, 56px)', paddingRight: 'clamp(16px, 4vw, 56px)' }}>
         <Routes>
           <Route path="/" element={<Home user={user} />} />
           <Route path="/new" element={<RequestForm onCreated={id => navigate(`/r/${id}`)} />} />

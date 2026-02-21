@@ -38,7 +38,25 @@ export default function PublicProfile({ user }) {
 
   return (
     <div style={{ maxWidth: 760 }}>
-      <h2>{profile.displayName || profile.username}</h2>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+        <h2 style={{ margin: 0 }}>{profile.displayName || profile.username}</h2>
+        {isOwnProfile && (
+          <Link
+            to="/profile"
+            style={{
+              padding: '8px 14px',
+              background: '#2563eb',
+              color: '#fff',
+              borderRadius: 999,
+              fontSize: 13,
+              fontWeight: 600,
+              textDecoration: 'none'
+            }}
+          >
+            Edit profile
+          </Link>
+        )}
+      </div>
       <div style={{ color: '#475569', marginBottom: 8 }}>
         {profile.locationLabel && profile.city && profile.state && `${profile.locationLabel} (${profile.city}, ${profile.state})`}
         {profile.locationLabel && !profile.city && profile.locationLabel}
@@ -51,13 +69,8 @@ export default function PublicProfile({ user }) {
       {contactItems.length > 0 && (
         <section style={{ marginTop: 12, marginBottom: 8 }}>
           <div style={{ padding: 14, borderRadius: 12, background: 'linear-gradient(135deg, #f8fafc, #eef2ff)', border: '1px solid #e2e8f0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-              <h3 style={{ margin: 0 }}>Contact</h3>
-              {isOwnProfile && (
-                <Link to="/profile" style={{ fontSize: 12, color: '#2563eb', textDecoration: 'none' }}>
-                  Edit profile
-                </Link>
-              )}
+            <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#64748b', marginBottom: 8 }}>
+              Contact
             </div>
             <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gap: 6 }}>
               {contactItems.map((method, idx) => (
@@ -92,14 +105,6 @@ export default function PublicProfile({ user }) {
               <span key={item} style={{ padding: '5px 10px', borderRadius: 999, background: '#f3e8ff', fontSize: 12 }}>{item}</span>
             ))}
           </div>
-        </section>
-      )}
-
-      {isOwnProfile && contactItems.length === 0 && (
-        <section style={{ marginTop: 12, marginBottom: 8 }}>
-          <Link to="/profile" style={{ color: '#2563eb', textDecoration: 'none' }}>
-            Add contact info
-          </Link>
         </section>
       )}
 

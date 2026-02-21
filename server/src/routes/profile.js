@@ -1,5 +1,6 @@
 const express = require('express');
 const User = require('../models/User');
+const Request = require('../models/Request');
 const zipcodes = require('../data/zipcodes.json');
 
 const router = express.Router();
@@ -41,7 +42,7 @@ function normalizeList(value) {
   return unique;
 }
 
-function sanitizeProfile(user) {
+function sanitizeProfile(user, requests) {
   if (!user) return null;
   return {
     id: user._id,
@@ -58,15 +59,20 @@ function sanitizeProfile(user) {
     skills: user.skills || [],
     offers: user.offers || [],
     openToHelp: user.openToHelp,
-    requests: user.requests || [],
+    requests: Array.isArray(requests) ? requests : (user.requests || []),
     createdAt: user.createdAt
   };
 }
 
+async function loadUserRequests(userId) {
+  return Request.find({ author: userId }).sort({ createdAt: -1 }).limit(200);
+}
+
 router.get('/me', ensureAuth, async (req, res) => {
-  const user = await User.findById(req.user._id).populate('requests');
+  const user = await User.findById(req.user._id);
   if (!user) return res.status(404).json({ error: 'User not found' });
-  res.json({ profile: sanitizeProfile(user) });
+  const requests = await loadUserRequests(user._id);
+  res.json({ profile: sanitizeProfile(user, requests) });
 });
 
 router.put('/me', ensureAuth, async (req, res) => {
@@ -117,8 +123,8 @@ router.put('/me', ensureAuth, async (req, res) => {
   if (openToHelp !== undefined) user.openToHelp = Boolean(openToHelp);
 
   await user.save();
-  const populated = await user.populate('requests');
-  res.json({ profile: sanitizeProfile(populated) });
+  const requests = await loadUserRequests(user._id);
+  res.json({ profile: sanitizeProfile(user, requests) });
 });
 
 // Zipcode lookup endpoint
@@ -133,9 +139,10 @@ router.get('/lookup/city-state/:zipcode', (req, res) => {
 
 // Public profile GET - must be after '/lookup/' to avoid conflicts
 router.get('/:id', async (req, res) => {
-  const user = await User.findById(req.params.id).populate('requests');
+  const user = await User.findById(req.params.id);
   if (!user) return res.status(404).json({ error: 'User not found' });
-  res.json({ profile: sanitizeProfile(user) });
+  const requests = await loadUserRequests(user._id);
+  res.json({ profile: sanitizeProfile(user, requests) });
 });
 
 // Skills aggregation endpoint - returns all unique skills across all users

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { get } from '../api'
 
-export default function PublicProfile() {
+export default function PublicProfile({ user }) {
   const { id } = useParams()
   const [profile, setProfile] = useState(null)
   const [error, setError] = useState('')
@@ -23,6 +23,8 @@ export default function PublicProfile() {
 
   if (error) return <div style={{ padding: 12, background: '#fee', color: '#c00', borderRadius: 6 }}>{error}</div>
   if (!profile) return <div>Loading profile...</div>
+
+  const isOwnProfile = user?.id && profile.id && user.id === profile.id
 
   const contactItems = []
   if (profile.allowDiscordContact && profile.username) {
@@ -46,6 +48,31 @@ export default function PublicProfile() {
 
       {profile.bio && <p>{profile.bio}</p>}
 
+      {contactItems.length > 0 && (
+        <section style={{ marginTop: 12, marginBottom: 8 }}>
+          <div style={{ padding: 14, borderRadius: 12, background: 'linear-gradient(135deg, #f8fafc, #eef2ff)', border: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <h3 style={{ margin: 0 }}>Contact</h3>
+              {isOwnProfile && (
+                <Link to="/profile" style={{ fontSize: 12, color: '#2563eb', textDecoration: 'none' }}>
+                  Edit profile
+                </Link>
+              )}
+            </div>
+            <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gap: 6 }}>
+              {contactItems.map((method, idx) => (
+                <li key={idx} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: '#0f172a', background: '#e2e8f0', padding: '2px 8px', borderRadius: 999 }}>
+                    {method.label}
+                  </span>
+                  <span style={{ fontSize: 13, color: '#1f2937' }}>{method.value}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+
       {profile.offers?.length > 0 && (
         <section style={{ marginTop: 14 }}>
           <h3 style={{ marginBottom: 8 }}>Offering</h3>
@@ -68,16 +95,11 @@ export default function PublicProfile() {
         </section>
       )}
 
-      {contactItems.length > 0 && (
-        <section style={{ marginTop: 14 }}>
-          <h3 style={{ marginBottom: 8 }}>Contact</h3>
-          <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-            {contactItems.map((method, idx) => (
-              <li key={idx} style={{ margin: '4px 0' }}>
-                <strong>{method.label}:</strong> {method.value}
-              </li>
-            ))}
-          </ul>
+      {isOwnProfile && contactItems.length === 0 && (
+        <section style={{ marginTop: 12, marginBottom: 8 }}>
+          <Link to="/profile" style={{ color: '#2563eb', textDecoration: 'none' }}>
+            Add contact info
+          </Link>
         </section>
       )}
 

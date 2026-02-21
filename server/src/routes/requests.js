@@ -1,5 +1,6 @@
 const express = require('express');
 const Request = require('../models/Request');
+const User = require('../models/User');
 
 const router = express.Router();
 
@@ -41,6 +42,7 @@ router.post('/', ensureAuth, async (req, res) => {
       tags: normalizeTags(tags),
       author: req.user._id
     });
+    await User.findByIdAndUpdate(req.user._id, { $addToSet: { requests: reqDoc._id } });
     res.json(reqDoc);
   } catch (err) { res.status(500).json({ error: err.message + ' error in create request' }); }
 });
@@ -116,6 +118,7 @@ router.delete('/:id', ensureAuth, async (req, res) => {
     if (!doc) return res.status(404).json({ error: 'Not found' });
     if (!doc.author.equals(req.user._id)) return res.status(403).json({ error: 'Forbidden' });
     await doc.deleteOne();
+    await User.findByIdAndUpdate(req.user._id, { $pull: { requests: doc._id } });
     res.json({ ok: true });
   } catch (err) { res.status(500).json({ error: err.message + ' error in delete request' }); }
 });

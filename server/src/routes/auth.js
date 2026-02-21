@@ -25,6 +25,7 @@ router.get('/discord/callback', (req, res, next) => {
 
 // Exchange JWT token for session cookie
 router.post('/exchange-token', async (req, res) => {
+  console.log('POST /auth/exchange-token - token received:', req.body.token?.substring(0, 20) + '...' || 'none');
   try {
     const { token } = req.body;
     if (!token) return res.status(400).json({ error: 'Token required' });

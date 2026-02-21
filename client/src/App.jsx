@@ -16,6 +16,7 @@ export default function App(){
       // Check URL for auth token from Discord callback
       const params = new URLSearchParams(window.location.search)
       const token = params.get('auth_token')
+      console.log('initAuth: URL search params =', window.location.search, 'token =', token?.substring(0, 20) + '...' || 'none')
       if (token) {
         console.log('Found auth token in URL, exchanging for session')
         try {
@@ -25,18 +26,29 @@ export default function App(){
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ token })
           })
+          if (!res.ok) {
+            const errData = await res.json()
+            throw new Error(errData.error || `HTTP ${res.status}`)
+          }
           const data = await res.json()
+          console.log('Token exchange succeeded, user:', data.user?.username)
           setUser(data.user)
           // Clear token from URL
           window.history.replaceState({}, document.title, window.location.pathname)
         } catch (err) {
-          console.error('Token exchange failed:', err)
+          console.error('Token exchange failed:', err.message)
+          // Fall back to checking session
+          fetch(API + '/auth/me', { credentials: 'include', cache: 'no-store' })
+            .then(r=>r.json())
+            .then(d=>setUser(d.user))
+            .catch(()=>{})
         }
       } else {
         // Check current session
+        console.log('No token in URL, checking current session')
         fetch(API + '/auth/me', { credentials: 'include', cache: 'no-store' })
           .then(r=>r.json())
-          .then(d=>setUser(d.user))
+          .then(d=>{console.log('Session check returned user:', d.user?.username || 'null'); setUser(d.user)})
           .catch(()=>{console.error("Failed to fetch user info")})
       }
     }

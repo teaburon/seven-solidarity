@@ -4,6 +4,8 @@ import Home from './pages/Home'
 import RequestForm from './pages/RequestForm'
 import RequestView from './pages/RequestView'
 import AuthFailure from './pages/AuthFailure'
+import Profile from './pages/Profile'
+import PublicProfile from './pages/PublicProfile'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:4000'
 
@@ -84,7 +86,7 @@ export default function App(){
           <Link to="/new">Create</Link> {' | '}
           {user ? (
             <>
-              <span style={{ marginLeft: 8 }}>{user.username}#{user.discriminator}</span>
+              <Link style={{ marginLeft: 8 }} to="/profile">{user.displayName || user.username}</Link>
               <button
                 type="button"
                 onClick={logout}
@@ -111,6 +113,8 @@ export default function App(){
         <Routes>
           <Route path="/" element={<Home user={user} />} />
           <Route path="/new" element={<RequestForm onCreated={id => navigate(`/r/${id}`)} />} />
+          <Route path="/profile" element={<Profile user={user} setUser={setUser} />} />
+          <Route path="/u/:id" element={<PublicProfile />} />
           <Route path="/auth/failure" element={<AuthFailure />} />
           <Route path="/r/:id" element={<RequestView user={user} />} />
         </Routes>

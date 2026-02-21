@@ -54,7 +54,7 @@ router.get('/', async (req, res) => {
     if (tags) filter.tags = { $all: tags.split(',').map(t => t.trim()).filter(Boolean) };
 
     const list = await Request.find(filter)
-      .populate('author', 'username')
+      .populate('author', 'username displayName')
       .sort({ createdAt: -1 })
       .limit(200);
     res.json(list);
@@ -87,8 +87,8 @@ router.get('/tags', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const doc = await Request.findById(req.params.id)
-      .populate('author', 'username avatar')
-      .populate('responses.user', 'username avatar');
+      .populate('author', 'username displayName avatar')
+      .populate('responses.user', 'username displayName avatar');
     if (!doc) return res.status(404).json({ error: 'Not found' });
     res.json(doc);
   } catch (err) { res.status(500).json({ error: err.message + ' error in get single request' }); }
@@ -131,7 +131,7 @@ router.post('/:id/respond', ensureAuth, async (req, res) => {
     }
     doc.responses.push({ user: req.user._id, message });
     await doc.save();
-    const populated = await doc.populate('responses.user', 'username');
+    const populated = await doc.populate('responses.user', 'username displayName');
     res.json(populated);
   } catch (err) { res.status(500).json({ error: err.message + ' error in respond to request' }); }
 });

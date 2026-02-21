@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { get, post } from '../api'
 
 export default function RequestView({ user }){
@@ -42,6 +42,11 @@ export default function RequestView({ user }){
     <div>
       {error && <div style={{ padding: 12, background: '#fee', color: '#c00', borderRadius: 6, marginBottom: 12 }}>{error}</div>}
       <h2>{doc.title}</h2>
+      {doc.author?._id && (
+        <div style={{ marginBottom: 8, fontSize: 13, color: '#475569' }}>
+          Requested by <Link to={`/u/${doc.author._id}`}>{doc.author.displayName || doc.author.username}</Link>
+        </div>
+      )}
       <div style={{ marginBottom: 8 }}>{doc.description}</div>
       <div style={{ marginBottom: 16, color: '#666' }}>{doc.tags?.join(', ')}</div>
 
@@ -49,7 +54,13 @@ export default function RequestView({ user }){
         <h3>Responses</h3>
         {doc.responses?.length ? doc.responses.map(r => (
           <div key={r._id} style={{ borderTop: '1px solid #eee', paddingTop: 8 }}>
-            <div style={{ fontSize: 13 }}>{r.user?.username}#{r.user?.discriminator}</div>
+            <div style={{ fontSize: 13 }}>
+              {r.user?._id ? (
+                <Link to={`/u/${r.user._id}`}>{r.user.displayName || r.user.username}</Link>
+              ) : (
+                r.user?.displayName || r.user?.username
+              )}
+            </div>
             <div style={{ marginTop: 4 }}>{r.message}</div>
           </div>
         )) : <div>No responses yet</div>}

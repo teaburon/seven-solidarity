@@ -24,6 +24,16 @@ export default function PublicProfile() {
   if (error) return <div style={{ padding: 12, background: '#fee', color: '#c00', borderRadius: 6 }}>{error}</div>
   if (!profile) return <div>Loading profile...</div>
 
+  const contactItems = []
+  if (profile.allowDiscordContact && profile.username) {
+    contactItems.push({ label: 'Discord', value: profile.username })
+  }
+  if (Array.isArray(profile.contactMethods)) {
+    contactItems.push(
+      ...profile.contactMethods.filter(method => method.label && method.value)
+    )
+  }
+
   return (
     <div style={{ maxWidth: 760 }}>
       <h2>{profile.displayName || profile.username}</h2>
@@ -58,17 +68,15 @@ export default function PublicProfile() {
         </section>
       )}
 
-      {profile.contactMethods?.length > 0 && (
+      {contactItems.length > 0 && (
         <section style={{ marginTop: 14 }}>
           <h3 style={{ marginBottom: 8 }}>Contact</h3>
           <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-            {profile.contactMethods
-              .filter(method => method.label && method.value)
-              .map((method, idx) => (
-                <li key={idx} style={{ margin: '4px 0' }}>
-                  <strong>{method.label}:</strong> {method.value}
-                </li>
-              ))}
+            {contactItems.map((method, idx) => (
+              <li key={idx} style={{ margin: '4px 0' }}>
+                <strong>{method.label}:</strong> {method.value}
+              </li>
+            ))}
           </ul>
         </section>
       )}

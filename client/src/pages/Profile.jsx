@@ -36,6 +36,7 @@ export default function Profile({ user, setUser }) {
     locationLabel: '',
     bio: '',
     contactMethods: [],
+    allowDiscordContact: false,
     skills: [],
     skillsInput: '',
     offers: [],
@@ -83,6 +84,7 @@ export default function Profile({ user, setUser }) {
         locationLabel: profile.locationLabel || '',
         bio: profile.bio || '',
         contactMethods: profile.contactMethods || [],
+        allowDiscordContact: profile.allowDiscordContact || false,
         skills: profile.skills || [],
         skillsInput: '',
         offers: profile.offers || [],
@@ -244,6 +246,7 @@ export default function Profile({ user, setUser }) {
         locationLabel: form.locationLabel,
         bio: form.bio,
         contactMethods: form.contactMethods,
+        allowDiscordContact: form.allowDiscordContact,
         skills: form.skills,
         offers: form.offers,
         openToHelp: form.openToHelp
@@ -316,15 +319,20 @@ export default function Profile({ user, setUser }) {
           <div style={{ fontSize: 12, color: '#64748b', marginBottom: 12, fontStyle: 'italic' }}>
             ⚠️ Only share what you're comfortable with. Exercise caution when sharing contact information.
           </div>
-          
-          {/* Discord field */}
-          <div style={{ marginBottom: 10 }}>
-            <input
-              value={getContactValue('Discord')}
-              onChange={e => setContactValue('Discord', e.target.value)}
-              placeholder="Your Discord username"
-            />
-            <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>Discord</div>
+
+          <div style={{ marginBottom: 12 }}>
+            <div style={{ fontSize: 12, color: '#64748b', marginBottom: 6 }}>
+              Discord username: {user?.username || 'Not connected'}
+            </div>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={form.allowDiscordContact}
+                onChange={e => updateField('allowDiscordContact', e.target.checked)}
+                disabled={!user?.username}
+              />
+              <span>Allow contact via Discord</span>
+            </label>
           </div>
 
           {/* Signal field */}
@@ -471,64 +479,15 @@ export default function Profile({ user, setUser }) {
           <span>Open to helping requests right now</span>
         </label>
 
-        <button type="submit" disabled={saving} style={{ marginTop: 8 }}>
-          {saving ? 'Saving...' : 'Save Profile'}
-        </button>
-      </form>
-
-      <section style={{ marginTop: 20 }}>
-        <h3 style={{ marginBottom: 8 }}>Profile Preview</h3>
-        <div style={{ padding: 12, border: '1px solid #e2e8f0', borderRadius: 8 }}>
-          <div><strong>{form.displayName || user.username}</strong></div>
-          <div style={{ color: '#64748b', fontSize: 13, marginBottom: 8 }}>
-            {form.locationLabel && `${form.locationLabel} `}
-            {cityState && `(${cityState})`}
-            {!form.locationLabel && !cityState && 'Location not set'}
-          </div>
-          {form.bio && <p style={{ marginBottom: 8 }}>{form.bio}</p>}
-          {form.skills.length > 0 && (
-            <div style={{ marginBottom: 10 }}>
-              <strong>Skills:</strong>
-              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 6 }}>
-                {form.skills.map(skill => (
-                  <span key={skill} style={{ padding: '4px 10px', background: '#f3e8ff', borderRadius: 999, fontSize: 12 }}>
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-          {form.offers.length > 0 && (
-            <div style={{ marginBottom: 10 }}>
-              <strong>Can offer:</strong>
-              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 6 }}>
-                {form.offers.map(offer => (
-                  <span key={offer} style={{ padding: '4px 10px', background: '#fef3c7', borderRadius: 999, fontSize: 12 }}>
-                    {offer}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-          {form.contactMethods.filter(m => m.label && m.value).length > 0 && (
-            <div style={{ marginBottom: 8 }}>
-              <strong>Contact:</strong>
-              <ul style={{ margin: '4px 0 0 20px', padding: 0 }}>
-                {form.contactMethods
-                  .filter(m => m.label && m.value)
-                  .map((method, idx) => (
-                    <li key={idx} style={{ fontSize: 13 }}>
-                      {method.label}: {method.value}
-                    </li>
-                  ))}
-              </ul>
-            </div>
-          )}
-          <div style={{ marginTop: 8 }}>
-            <Link to={`/u/${user.id}`}>View public profile</Link>
-          </div>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginTop: 8 }}>
+          <button type="submit" disabled={saving}>
+            {saving ? 'Saving...' : 'Save Profile'}
+          </button>
+          <Link to={`/u/${user.id}`} style={{ color: '#2563eb', textDecoration: 'none' }}>
+            View Profile
+          </Link>
         </div>
-      </section>
+      </form>
     </div>
   )
 }

@@ -54,6 +54,7 @@ function sanitizeProfile(user) {
     locationLabel: user.locationLabel || '',
     bio: user.bio || '',
     contactMethods: user.contactMethods || [],
+    allowDiscordContact: user.allowDiscordContact || false,
     skills: user.skills || [],
     offers: user.offers || [],
     openToHelp: user.openToHelp,
@@ -78,6 +79,7 @@ router.put('/me', ensureAuth, async (req, res) => {
     locationLabel,
     bio,
     contactMethods,
+    allowDiscordContact,
     skills,
     offers,
     openToHelp
@@ -109,6 +111,7 @@ router.put('/me', ensureAuth, async (req, res) => {
         }));
     }
   }
+  if (allowDiscordContact !== undefined) user.allowDiscordContact = Boolean(allowDiscordContact);
   if (skills !== undefined) user.skills = normalizeList(skills);
   if (offers !== undefined) user.offers = normalizeList(offers);
   if (openToHelp !== undefined) user.openToHelp = Boolean(openToHelp);

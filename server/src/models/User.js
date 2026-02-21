@@ -20,6 +20,7 @@ const UserSchema = new mongoose.Schema({
     label: { type: String, maxlength: 50 },
     value: { type: String, maxlength: 100 }
   }],
+  allowDiscordContact: { type: Boolean, default: false },
   skills: [{ type: String }],
   offers: [{ type: String }],
   openToHelp: { type: Boolean, default: true },

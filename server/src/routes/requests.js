@@ -50,6 +50,28 @@ router.get('/', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message + ' error in search/list requests' }); }
 });
 
+// Tag suggestions: ?q=par
+router.get('/tags', async (req, res) => {
+  try {
+    const q = String(req.query.q || '').trim();
+    const regex = q ? new RegExp(`^${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'i') : null;
+
+    const pipeline = [
+      { $unwind: '$tags' },
+      ...(regex ? [{ $match: { tags: regex } }] : []),
+      { $group: { _id: '$tags' } },
+      { $project: { _id: 0, tag: '$_id' } },
+      { $sort: { tag: 1 } },
+      { $limit: 20 }
+    ];
+
+    const results = await Request.aggregate(pipeline);
+    res.json(results.map(r => r.tag));
+  } catch (err) {
+    res.status(500).json({ error: err.message + ' error in tag suggestions' });
+  }
+});
+
 // Get single
 router.get('/:id', async (req, res) => {
   try {

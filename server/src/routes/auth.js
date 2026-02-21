@@ -6,6 +6,7 @@ const User = require('../models/User');
 const router = express.Router();
 const JWT_SECRET = process.env.SESSION_SECRET || 'dev-secret';
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+const isProduction = process.env.NODE_ENV === 'production' || !FRONTEND_URL.includes('localhost');
 
 router.get('/discord', passport.authenticate('discord'));
 
@@ -47,17 +48,26 @@ router.post('/exchange-token', async (req, res) => {
 router.get('/failure', (req, res) => res.status(401).json({ error: 'Authentication failed' }));
 
 function clearSessionCookie(res) {
+  const cookieOptions = isProduction
+    ? {
+        path: '/',
+        sameSite: 'none',
+        secure: true,
+        httpOnly: true,
+        partitioned: true
+      }
+    : {
+        path: '/',
+        sameSite: 'lax',
+        secure: false,
+        httpOnly: true
+      };
+
+  res.clearCookie('connect.sid', cookieOptions);
   res.clearCookie('connect.sid', {
     path: '/',
     sameSite: 'none',
     secure: true,
-    httpOnly: true,
-    partitioned: true
-  });
-  res.clearCookie('connect.sid', {
-    path: '/',
-    sameSite: 'lax',
-    secure: false,
     httpOnly: true
   });
 }

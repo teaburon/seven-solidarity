@@ -11,6 +11,18 @@ export default function App(){
   const [user, setUser] = useState(null)
   const navigate = useNavigate()
 
+  async function logout() {
+    try {
+      await fetch(API + '/auth/logout', {
+        method: 'POST',
+        credentials: 'include'
+      })
+    } finally {
+      setUser(null)
+      navigate('/')
+    }
+  }
+
   useEffect(() => {
     async function initAuth() {
       const params = new URLSearchParams(window.location.search)
@@ -61,7 +73,13 @@ export default function App(){
           {user ? (
             <>
               <span style={{ marginLeft: 8 }}>{user.username}#{user.discriminator}</span>
-              <a style={{ marginLeft: 8 }} href={API + '/auth/logout'}>Logout</a>
+              <button
+                type="button"
+                onClick={logout}
+                style={{ marginLeft: 8, background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+              >
+                Logout
+              </button>
             </>
           ) : (
             <a href={API + '/auth/discord'}>Login with Discord</a>

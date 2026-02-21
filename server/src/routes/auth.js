@@ -64,7 +64,8 @@ router.get('/logout', (req, res, next) => {
         path: '/',
         sameSite: 'none',
         secure: true,
-        httpOnly: true
+        httpOnly: true,
+        partitioned: true
       });
       res.redirect(process.env.FRONTEND_URL || '/');
     });

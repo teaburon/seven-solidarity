@@ -68,6 +68,7 @@ app.use(session({
     httpOnly: true,
     sameSite: isProduction ? 'none' : 'lax',
     secure: isProduction,
+    partitioned: isProduction, // Required for cross-site cookies in modern browsers
     path: '/'
   }
 }));

@@ -9,7 +9,7 @@ export default function RequestView({ user }){
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  useEffect(()=>{ if(id) load() }, [id])
+  useEffect(() => { if (id) load() }, [id])
 
   async function load(){
     try {
@@ -40,26 +40,26 @@ export default function RequestView({ user }){
 
   return (
     <div>
-      {error && <div style={{padding:12,background:'#fee',color:'#c00',borderRadius:6,marginBottom:12}}>{error}</div>}
+      {error && <div style={{ padding: 12, background: '#fee', color: '#c00', borderRadius: 6, marginBottom: 12 }}>{error}</div>}
       <h2>{doc.title}</h2>
-      <div style={{marginBottom:8}}>{doc.description}</div>
-      <div style={{marginBottom:16,color:'#666'}}>{doc.tags?.join(', ')}</div>
+      <div style={{ marginBottom: 8 }}>{doc.description}</div>
+      <div style={{ marginBottom: 16, color: '#666' }}>{doc.tags?.join(', ')}</div>
 
       <section>
         <h3>Responses</h3>
-        {doc.responses?.length ? doc.responses.map(r=> (
-          <div key={r._id} style={{borderTop:'1px solid #eee',paddingTop:8}}>
-            <div style={{fontSize:13}}>{r.user?.username}#{r.user?.discriminator}</div>
-            <div style={{marginTop:4}}>{r.message}</div>
+        {doc.responses?.length ? doc.responses.map(r => (
+          <div key={r._id} style={{ borderTop: '1px solid #eee', paddingTop: 8 }}>
+            <div style={{ fontSize: 13 }}>{r.user?.username}#{r.user?.discriminator}</div>
+            <div style={{ marginTop: 4 }}>{r.message}</div>
           </div>
         )) : <div>No responses yet</div>}
       </section>
 
-      <section style={{marginTop:16}}>
+      <section style={{ marginTop: 16 }}>
         <h4>Respond</h4>
         {user ? (
-          <form onSubmit={respond} style={{display:'grid',gap:8}}>
-            <textarea required value={msg} onChange={e=>setMsg(e.target.value)} rows={4} disabled={loading} />
+          <form onSubmit={respond} style={{ display: 'grid', gap: 8 }}>
+            <textarea required value={msg} onChange={e => setMsg(e.target.value)} rows={4} disabled={loading} />
             <button type="submit" disabled={loading}>{loading ? 'Sending...' : 'Send Response'}</button>
           </form>
         ) : (

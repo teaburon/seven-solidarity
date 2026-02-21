@@ -13,7 +13,7 @@ export default function RequestForm({ onCreated }){
     try {
       setError('')
       setLoading(true)
-      const body = { title, description, tags: tags.split(',').map(t=>t.trim()).filter(Boolean) }
+      const body = { title, description, tags: tags.split(',').map(t => t.trim()).filter(Boolean) }
       const created = await post('/api/requests', body)
       if (onCreated) onCreated(created._id)
     } catch (err) {
@@ -25,12 +25,12 @@ export default function RequestForm({ onCreated }){
 
   return (
     <div>
-      {error && <div style={{padding:12,background:'#fee',color:'#c00',borderRadius:6,marginBottom:12}}>{error}</div>}
-      <form onSubmit={submit} style={{display:'grid',gap:8,maxWidth:700}}>
-      <input required placeholder="Title" value={title} onChange={e=>setTitle(e.target.value)} />
-      <textarea placeholder="Description" value={description} onChange={e=>setDescription(e.target.value)} rows={6} />
-      <input placeholder="tags, comma separated" value={tags} onChange={e=>setTags(e.target.value)} />
-      <button type="submit" disabled={loading}>{loading ? 'Creating...' : 'Create'}</button>
+      {error && <div style={{ padding: 12, background: '#fee', color: '#c00', borderRadius: 6, marginBottom: 12 }}>{error}</div>}
+      <form onSubmit={submit} style={{ display: 'grid', gap: 8, maxWidth: 700 }}>
+        <input required placeholder="Title" value={title} onChange={e => setTitle(e.target.value)} />
+        <textarea placeholder="Description" value={description} onChange={e => setDescription(e.target.value)} rows={6} />
+        <input placeholder="tags, comma separated" value={tags} onChange={e => setTags(e.target.value)} />
+        <button type="submit" disabled={loading}>{loading ? 'Creating...' : 'Create'}</button>
       </form>
     </div>
   )

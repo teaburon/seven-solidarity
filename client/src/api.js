@@ -1,9 +1,9 @@
 const API = import.meta.env.VITE_API_URL || 'http://localhost:4000'
 
 function withApiPrefix(path) {
-  if (path.startsWith('/api/')) return path;
-  if (path.startsWith('/auth')) return path; // don't prefix auth routes
-  return '/api' + (path.startsWith('/') ? path : '/' + path);
+  if (path.startsWith('/api/')) return path
+  if (path.startsWith('/auth')) return path // don't prefix auth routes
+  return '/api' + (path.startsWith('/') ? path : '/' + path)
 }
 
 async function get(path){
@@ -22,7 +22,7 @@ async function post(path, body){
     API + withApiPrefix(path), {
       method: 'POST',
       credentials: 'include',
-      headers: {'Content-Type':'application/json'},
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     }
   )
@@ -38,7 +38,7 @@ async function put(path, body){
     API + withApiPrefix(path), {
       method: 'PUT',
       credentials: 'include',
-      headers: {'Content-Type':'application/json'},
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     }
   )

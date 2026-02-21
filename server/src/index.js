@@ -15,16 +15,12 @@ const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 const isProduction = process.env.NODE_ENV === 'production' || !FRONTEND_URL.includes('localhost');
 
 const app = express();
-app.use(cors({
-  origin: FRONTEND_URL,
-  credentials: true
-}));
-
 app.use(express.json());
 if (isProduction) {
   app.set('trust proxy', 1);
 }
 
+// CORS with credentials for session cookies
 const allowedOrigins = [
   'http://localhost:5173',
   'https://seven-solidarity.vercel.app',
@@ -34,8 +30,8 @@ app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
     res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Credentials', 'true');
   }
-  res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
   if (req.method === 'OPTIONS') return res.sendStatus(200);

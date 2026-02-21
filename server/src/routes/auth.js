@@ -1,34 +1,54 @@
 const express = require('express');
 const passport = require('passport');
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
 const router = express.Router();
+const JWT_SECRET = process.env.SESSION_SECRET || 'dev-secret';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
 router.get('/discord', passport.authenticate('discord'));
 
 router.get('/discord/callback', (req, res, next) => {
-  console.log('OAuth callback started, session ID:', req.sessionID, 'cookie header:', req.headers.cookie?.substring(0, 50));
+  console.log('OAuth callback started');
   passport.authenticate('discord', (err, user) => {
     console.log('Passport strategy returned:', err ? err.message : 'ok', 'user:', user ? user.username : 'none');
     if (err || !user) {
-      return res.redirect('/auth/failure');
+      return res.redirect(FRONTEND_URL + '/auth/failure');
     }
-    // Manually set user on session without regenerating
-    req.session.passport = { user: user.id };
-    req.session.save(saveErr => {
-      if (saveErr) {
-        console.error('Session save error:', saveErr.message);
-        return next(saveErr);
-      }
-      console.log('Session saved with user, final session ID:', req.sessionID);
-      console.log('Set-Cookie will be sent for session:', req.sessionID);
-      const redirectUrl = process.env.FRONTEND_URL || '/';
-      res
-        .status(200)
-        .set('Content-Type', 'text/html; charset=utf-8')
-        .set('Cache-Control', 'no-store')
-        .send(`<!doctype html><html><head><meta http-equiv="refresh" content="0;url=${redirectUrl}"></head><body><script>window.location.replace(${JSON.stringify(redirectUrl)});</script>Redirecting...</body></html>`);
-    });
+    // Generate JWT token instead of relying on session cookies
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '24h' });
+    console.log('Generated JWT token for user:', user.username);
+    res.redirect(`${FRONTEND_URL}?auth_token=${token}`);
   })(req, res, next);
+});
+
+// Exchange JWT token for session cookie
+router.post('/exchange-token', async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (!token) return res.status(400).json({ error: 'Token required' });
+    
+    const decoded = jwt.verify(token, JWT_SECRET);
+    console.log('Token verified for user ID:', decoded.userId);
+    
+    const user = await User.findById(decoded.userId);
+    if (!user) return res.status(401).json({ error: 'User not found' });
+    
+    // Manually set passport session data
+    req.session.passport = { user: user._id };
+    req.session.save(err => {
+      if (err) {
+        console.error('Session save error:', err.message);
+        return res.status(500).json({ error: 'Session save failed' });
+      }
+      console.log('Session established for user:', user.username);
+      res.json({ user });
+    });
+  } catch (err) {
+    console.error('Token exchange error:', err.message);
+    res.status(401).json({ error: 'Invalid token' });
+  }
 });
 
 router.get('/failure', (req, res) => res.status(401).json({ error: 'Authentication failed' }));

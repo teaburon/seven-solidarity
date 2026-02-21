@@ -11,10 +11,36 @@ export default function App(){
   const [user, setUser] = useState(null)
   const navigate = useNavigate()
 
-  useEffect(()=>{ fetch(API + '/auth/me', { credentials: 'include', cache: 'no-store' })
-    .then(r=>r.json())
-    .then(d=>setUser(d.user))
-    .catch(()=>{console.error("Failed to fetch user info")}); 
+  useEffect(() => {
+    async function initAuth() {
+      // Check URL for auth token from Discord callback
+      const params = new URLSearchParams(window.location.search)
+      const token = params.get('auth_token')
+      if (token) {
+        console.log('Found auth token in URL, exchanging for session')
+        try {
+          const res = await fetch(API + '/auth/exchange-token', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token })
+          })
+          const data = await res.json()
+          setUser(data.user)
+          // Clear token from URL
+          window.history.replaceState({}, document.title, window.location.pathname)
+        } catch (err) {
+          console.error('Token exchange failed:', err)
+        }
+      } else {
+        // Check current session
+        fetch(API + '/auth/me', { credentials: 'include', cache: 'no-store' })
+          .then(r=>r.json())
+          .then(d=>setUser(d.user))
+          .catch(()=>{console.error("Failed to fetch user info")})
+      }
+    }
+    initAuth()
   }, [])
 
   return (

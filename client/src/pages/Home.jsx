@@ -77,9 +77,52 @@ export default function Home(){
   return (
     <div>
       {error && <div style={{ padding: 12, background: '#fee', color: '#c00', borderRadius: 6, marginBottom: 12 }}>{error}</div>}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 12, alignItems: 'flex-start' }}>
         <input placeholder="Search" value={q} onChange={e => setQ(e.target.value)} />
-        <input placeholder="tags (comma)" value={tags} onChange={e => onTagsChange(e.target.value)} />
+        <div style={{ position: 'relative', width: 300 }}>
+          <input
+            placeholder="tags (comma)"
+            value={tags}
+            onChange={e => onTagsChange(e.target.value)}
+            style={{ width: '100%' }}
+          />
+          {suggestions.length > 0 && (
+            <div
+              style={{
+                position: 'absolute',
+                top: 'calc(100% + 4px)',
+                left: 0,
+                right: 0,
+                border: '1px solid #ddd',
+                borderRadius: 6,
+                background: '#fff',
+                zIndex: 10
+              }}
+            >
+              {suggestions.map(tag => (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => applySuggestion(tag)}
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    textAlign: 'left',
+                    background: '#fff',
+                    color: '#0f172a',
+                    border: 'none',
+                    borderBottom: '1px solid #eee',
+                    borderRadius: 0,
+                    padding: 8,
+                    cursor: 'pointer'
+                  }}
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
         <button onClick={fetchList}>Search</button>
       </div>
       {selectedTags().length > 0 && (
@@ -118,32 +161,6 @@ export default function Home(){
           ))}
         </div>
       )}
-      {suggestions.length > 0 && (
-        <div style={{ border: '1px solid #ddd', borderRadius: 6, maxWidth: 300, background: '#fff', marginBottom: 12 }}>
-          {suggestions.map(tag => (
-            <button
-              key={tag}
-              type="button"
-              onClick={() => applySuggestion(tag)}
-              style={{
-                display: 'block',
-                width: '100%',
-                textAlign: 'left',
-                background: '#fff',
-                color: '#0f172a',
-                border: 'none',
-                borderBottom: '1px solid #eee',
-                borderRadius: 0,
-                padding: 8,
-                cursor: 'pointer'
-              }}
-            >
-              {tag}
-            </button>
-          ))}
-        </div>
-      )}
-
       <ul>
         {list.map(r => (
           <li key={r._id} style={{ marginBottom: 10 }}>

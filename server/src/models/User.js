@@ -16,14 +16,10 @@ const UserSchema = new mongoose.Schema({
   state: { type: String },
   locationLabel: { type: String },
   bio: { type: String, maxlength: 500 },
-  contactMethods: {
-    discord: { type: String },
-    email: { type: String },
-    phone: { type: String },
-    signal: { type: String },
-    telegram: { type: String },
-    other: { type: String }
-  },
+  contactMethods: [{
+    label: { type: String, maxlength: 50 },
+    value: { type: String, maxlength: 100 }
+  }],
   skills: [{ type: String }],
   offers: [{ type: String }],
   openToHelp: { type: Boolean, default: true },

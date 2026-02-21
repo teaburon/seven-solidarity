@@ -53,7 +53,7 @@ function sanitizeProfile(user) {
     state: user.state || '',
     locationLabel: user.locationLabel || '',
     bio: user.bio || '',
-    contactMethods: user.contactMethods || {},
+    contactMethods: user.contactMethods || [],
     skills: user.skills || [],
     offers: user.offers || [],
     openToHelp: user.openToHelp,
@@ -99,11 +99,14 @@ router.put('/me', ensureAuth, async (req, res) => {
   if (locationLabel !== undefined) user.locationLabel = String(locationLabel || '').trim().slice(0, 80);
   if (bio !== undefined) user.bio = String(bio || '').trim().slice(0, 500);
   if (contactMethods !== undefined) {
-    user.contactMethods = {};
-    if (contactMethods && typeof contactMethods === 'object') {
-      for (const [key, value] of Object.entries(contactMethods)) {
-        user.contactMethods[key] = String(value || '').trim().slice(0, 100);
-      }
+    user.contactMethods = [];
+    if (Array.isArray(contactMethods)) {
+      user.contactMethods = contactMethods
+        .filter(method => method && method.label && method.value)
+        .map(method => ({
+          label: String(method.label).trim().slice(0, 50),
+          value: String(method.value).trim().slice(0, 100)
+        }));
     }
   }
   if (skills !== undefined) user.skills = normalizeList(skills);

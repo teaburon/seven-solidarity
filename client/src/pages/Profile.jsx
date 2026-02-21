@@ -19,15 +19,6 @@ function textToUniqueList(text) {
   return unique
 }
 
-const CONTACT_METHODS = [
-  { key: 'discord', label: 'Discord' },
-  { key: 'email', label: 'Email' },
-  { key: 'phone', label: 'Phone' },
-  { key: 'signal', label: 'Signal' },
-  { key: 'telegram', label: 'Telegram' },
-  { key: 'other', label: 'Other' }
-]
-
 export default function Profile({ user, setUser }) {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
@@ -44,7 +35,7 @@ export default function Profile({ user, setUser }) {
     zipcode: '',
     locationLabel: '',
     bio: '',
-    contactMethods: {},
+    contactMethods: [],
     skills: [],
     skillsInput: '',
     offers: [],
@@ -91,7 +82,7 @@ export default function Profile({ user, setUser }) {
         zipcode: profile.zipcode || '',
         locationLabel: profile.locationLabel || '',
         bio: profile.bio || '',
-        contactMethods: profile.contactMethods || {},
+        contactMethods: profile.contactMethods || [],
         skills: profile.skills || [],
         skillsInput: '',
         offers: profile.offers || [],
@@ -110,11 +101,50 @@ export default function Profile({ user, setUser }) {
     setForm(prev => ({ ...prev, [key]: value }))
   }
 
-  function updateContactMethod(method, value) {
+  function updateContactMethod(index, field, value) {
+    setForm(prev => {
+      const updated = [...prev.contactMethods]
+      if (!updated[index]) updated[index] = { label: '', value: '' }
+      updated[index] = { ...updated[index], [field]: value }
+      return { ...prev, contactMethods: updated }
+    })
+  }
+
+  function addContactMethod() {
     setForm(prev => ({
       ...prev,
-      contactMethods: { ...prev.contactMethods, [method]: value }
+      contactMethods: [...prev.contactMethods, { label: '', value: '' }]
     }))
+  }
+
+  function removeContactMethod(index) {
+    setForm(prev => ({
+      ...prev,
+      contactMethods: prev.contactMethods.filter((_, i) => i !== index)
+    }))
+  }
+
+  function getContactValue(label) {
+    const method = form.contactMethods.find(m => m.label === label)
+    return method ? method.value : ''
+  }
+
+  function setContactValue(label, value) {
+    setForm(prev => {
+      const index = prev.contactMethods.findIndex(m => m.label === label)
+      if (index >= 0) {
+        const updated = [...prev.contactMethods]
+        if (value) {
+          updated[index] = { label, value }
+        } else {
+          updated.splice(index, 1)
+        }
+        return { ...prev, contactMethods: updated }
+      } else if (value) {
+        return { ...prev, contactMethods: [...prev.contactMethods, { label, value }] }
+      }
+      return prev
+    })
   }
 
   function handleZipcodeChange(zipcode) {
@@ -283,16 +313,67 @@ export default function Profile({ user, setUser }) {
 
         <div>
           <div style={{ fontWeight: 600, marginBottom: 8 }}>How to reach you</div>
-          {CONTACT_METHODS.map(method => (
-            <div key={method.key} style={{ marginBottom: 10 }}>
-              <input
-                value={form.contactMethods[method.key] || ''}
-                onChange={e => updateContactMethod(method.key, e.target.value)}
-                placeholder={`Your ${method.label.toLowerCase()}`}
-              />
-              <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{method.label}</div>
-            </div>
-          ))}
+          <div style={{ fontSize: 12, color: '#64748b', marginBottom: 12, fontStyle: 'italic' }}>
+            ⚠️ Only share what you're comfortable with. Exercise caution when sharing contact information.
+          </div>
+          
+          {/* Discord field */}
+          <div style={{ marginBottom: 10 }}>
+            <input
+              value={getContactValue('Discord')}
+              onChange={e => setContactValue('Discord', e.target.value)}
+              placeholder="Your Discord username"
+            />
+            <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>Discord</div>
+          </div>
+
+          {/* Signal field */}
+          <div style={{ marginBottom: 10 }}>
+            <input
+              value={getContactValue('Signal')}
+              onChange={e => setContactValue('Signal', e.target.value)}
+              placeholder="Your Signal number or username"
+            />
+            <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>Signal</div>
+          </div>
+
+          {/* Custom fields */}
+          {form.contactMethods
+            .filter(m => m.label !== 'Discord' && m.label !== 'Signal')
+            .map((method, idx) => {
+              const actualIndex = form.contactMethods.findIndex(m => m === method)
+              return (
+                <div key={actualIndex} style={{ marginBottom: 10, display: 'grid', gridTemplateColumns: '1fr 2fr auto', gap: 8, alignItems: 'start' }}>
+                  <input
+                    value={method.label}
+                    onChange={e => updateContactMethod(actualIndex, 'label', e.target.value)}
+                    placeholder="Label (e.g., Email)"
+                    style={{ fontSize: 13 }}
+                  />
+                  <input
+                    value={method.value}
+                    onChange={e => updateContactMethod(actualIndex, 'value', e.target.value)}
+                    placeholder="Your contact info"
+                    style={{ fontSize: 13 }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeContactMethod(actualIndex)}
+                    style={{ padding: '6px 10px', background: '#fee', color: '#c00', border: '1px solid #fcc', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}
+                  >
+                    Remove
+                  </button>
+                </div>
+              )
+            })}
+          
+          <button
+            type="button"
+            onClick={addContactMethod}
+            style={{ marginTop: 8, padding: '8px 12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 6, cursor: 'pointer', fontSize: 13, color: '#2563eb' }}
+          >
+            + Add field
+          </button>
         </div>
 
         <div>
@@ -429,17 +510,17 @@ export default function Profile({ user, setUser }) {
               </div>
             </div>
           )}
-          {Object.values(form.contactMethods).some(v => v) && (
+          {form.contactMethods.filter(m => m.label && m.value).length > 0 && (
             <div style={{ marginBottom: 8 }}>
               <strong>Contact:</strong>
               <ul style={{ margin: '4px 0 0 20px', padding: 0 }}>
-                {CONTACT_METHODS.map(method =>
-                  form.contactMethods[method.key] && (
-                    <li key={method.key} style={{ fontSize: 13 }}>
-                      {method.label}: {form.contactMethods[method.key]}
+                {form.contactMethods
+                  .filter(m => m.label && m.value)
+                  .map((method, idx) => (
+                    <li key={idx} style={{ fontSize: 13 }}>
+                      {method.label}: {method.value}
                     </li>
-                  )
-                )}
+                  ))}
               </ul>
             </div>
           )}

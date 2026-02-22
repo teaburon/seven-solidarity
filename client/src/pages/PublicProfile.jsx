@@ -20,6 +20,10 @@ function normalizeContactUrl(value, label) {
   
   // If value looks like a handle (@username), try platform conversion
   if (raw.startsWith('@') && label && PLATFORM_URLS[label]) {
+    if (label === 'TikTok') {
+      return `https://tiktok.com/${raw}`
+    }
+
     const handle = raw.substring(1)
     const baseUrl = PLATFORM_URLS[label]
     

@@ -3,14 +3,12 @@ import { Link, useParams } from 'react-router-dom'
 import { get } from '../api'
 
 const PLATFORM_URLS = {
-  'TikTok': 'https://tiktok.com',
-  'Instagram': 'https://instagram.com',
-  'Facebook': 'https://facebook.com',
-  'Twitter': 'https://twitter.com',
-  'X': 'https://twitter.com',
-  'YouTube': 'https://youtube.com/@',
-  'LinkedIn': 'https://linkedin.com/in',
-  'Bluesky': 'https://bsky.app/profile',
+  'TikTok': 'https://tiktok.com/',
+  'Instagram': 'https://instagram.com/',
+  'Facebook': 'https://facebook.com/',
+  'X / Twitter': 'https://twitter.com/',
+  'LinkedIn': 'https://linkedin.com/in/',
+  'Bluesky': 'https://bsky.app/profile/',
   'Mastodon': 'https://mastodon.social/@',
   'Threads': 'https://threads.net/@'
 }
@@ -18,6 +16,7 @@ const PLATFORM_URLS = {
 function normalizeContactUrl(value, label) {
   const raw = String(value || '').trim()
   if (!raw) return ''
+  if (label === 'Discord') return ''
   
   // If value looks like a handle (@username), try platform conversion
   if (raw.startsWith('@') && label && PLATFORM_URLS[label]) {
@@ -118,7 +117,9 @@ export default function PublicProfile({ user }) {
                   <span style={{ fontSize: 12, fontWeight: 600, color: '#0f172a', background: '#e2e8f0', padding: '2px 8px', borderRadius: 999 }}>
                     {method.label}
                   </span>
-                  {normalizeContactUrl(method.value, method.label) ? (
+                  {method.label === 'Discord' || !normalizeContactUrl(method.value, method.label) ? (
+                    <span style={{ fontSize: 13, color: '#1f2937' }}>{method.value}</span>
+                  ) : (
                     <a
                       href={normalizeContactUrl(method.value, method.label)}
                       target="_blank"
@@ -135,8 +136,6 @@ export default function PublicProfile({ user }) {
                     >
                       Open {method.label}
                     </a>
-                  ) : (
-                    <span style={{ fontSize: 13, color: '#1f2937' }}>{method.value}</span>
                   )}
                 </li>
               ))}

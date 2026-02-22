@@ -49,19 +49,41 @@ export default function Home({ user }){
   }
 
   function toggleTag(tag) {
-    setSelectedTags(prev =>
-      prev.some(t => t.toLowerCase() === tag.toLowerCase())
+    setSelectedTags(prev => {
+      const updated = prev.some(t => t.toLowerCase() === tag.toLowerCase())
         ? prev.filter(t => t.toLowerCase() !== tag.toLowerCase())
         : [...prev, tag]
-    )
+      setTimeout(() => fetchListWithTags(updated), 0)
+      return updated
+    })
   }
 
   function removeSelectedTag(tagToRemove) {
-    setSelectedTags(prev => prev.filter(tag => tag.toLowerCase() !== tagToRemove.toLowerCase()))
+    const updated = selectedTags.filter(tag => tag.toLowerCase() !== tagToRemove.toLowerCase())
+    setSelectedTags(updated)
+    fetchListWithTags(updated)
   }
 
   function clearAllTags() {
     setSelectedTags([])
+    fetchListWithTags([])
+  }
+
+  async function fetchListWithTags(tags) {
+    try {
+      setError('')
+      const qs = new URLSearchParams()
+      if (q) qs.set('q', q)
+      const wantsClosed = tags.some(tag => tag.toLowerCase() === 'closed')
+      if (wantsClosed) qs.set('includeClosed', '1')
+      const normalTags = tags.filter(tag => tag.toLowerCase() !== 'closed')
+      if (normalTags.length) qs.set('tags', normalTags.join(','))
+      const query = qs.toString()
+      const data = await get(`/requests${query ? `?${query}` : ''}`)
+      setList(data)
+    } catch (err) {
+      setError('Failed to load requests: ' + err.message)
+    }
   }
 
   async function fetchList(){
@@ -70,7 +92,7 @@ export default function Home({ user }){
       const qs = new URLSearchParams()
       if (q) qs.set('q', q)
       const wantsClosed = selectedTags.some(tag => tag.toLowerCase() === 'closed')
-      if (wantsClosed) qs.set('includeClosed', '1')
+      if (wantsClosed || q) qs.set('includeClosed', '1')
       const normalTags = selectedTags.filter(tag => tag.toLowerCase() !== 'closed')
       if (normalTags.length) qs.set('tags', normalTags.join(','))
       const query = qs.toString()
@@ -85,9 +107,21 @@ export default function Home({ user }){
     <div>
       {error && <div style={{ padding: 12, background: '#fee', color: '#c00', borderRadius: 6, marginBottom: 12 }}>{error}</div>}
       <div style={{ display: 'flex', gap: 8, marginBottom: 12, alignItems: 'center' }}>
-        <input placeholder="Search" value={q} onChange={e => setQ(e.target.value)} />
-        <button type="button" onClick={toggleTagFilters}>{showTagFilters ? 'Hide Filters' : 'Filter Tags'}</button>
-        <button onClick={fetchList}>Search</button>
+        <input placeholder="Search requests, titles, or usernames..." value={q} onChange={e => {
+          setQ(e.target.value)
+          setTimeout(() => {
+            const qs = new URLSearchParams()
+            if (e.target.value) qs.set('q', e.target.value)
+            const wantsClosed = selectedTags.some(tag => tag.toLowerCase() === 'closed')
+            if (wantsClosed || e.target.value) qs.set('includeClosed', '1')
+            const normalTags = selectedTags.filter(tag => tag.toLowerCase() !== 'closed')
+            if (normalTags.length) qs.set('tags', normalTags.join(','))
+            const query = qs.toString()
+            get(`/requests${query ? `?${query}` : ''}`).then(data => setList(data)).catch(err => setError('Failed to load: ' + err.message))
+          }, 300)
+        }} />
+        <button onClick={fetchList} style={{ whiteSpace: 'nowrap' }}>Search</button>
+        <button type="button" onClick={toggleTagFilters} style={{ whiteSpace: 'nowrap' }}>{showTagFilters ? 'Hide Filters' : 'Filter Tags'}</button>
       </div>
 
       {selectedTags.length > 0 && (

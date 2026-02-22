@@ -544,8 +544,11 @@ export default function Profile({ user, setUser }) {
             checked={form.openToHelp}
             onChange={e => updateField('openToHelp', e.target.checked)}
           />
-          <span>Open to helping requests right now</span>
+          <span>Open to help</span>
         </label>
+        <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
+          People can reach out to you for help
+        </div>
 
         <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginTop: 8 }}>
           <button type="submit" disabled={saving}>

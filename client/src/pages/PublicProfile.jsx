@@ -82,7 +82,14 @@ export default function PublicProfile({ user }) {
   return (
     <div style={{ maxWidth: 760 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-        <h2 style={{ margin: 0 }}>{profile.displayName || profile.username}</h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <h2 style={{ margin: 0 }}>{profile.displayName || profile.username}</h2>
+          {profile.openToHelp && (
+            <span style={{ fontSize: 12, fontWeight: 600, color: '#fff', background: '#10b981', padding: '2px 8px', borderRadius: 4, whiteSpace: 'nowrap' }}>
+              Open to help
+            </span>
+          )}
+        </div>
         {isOwnProfile && (
           <Link
             to="/profile"

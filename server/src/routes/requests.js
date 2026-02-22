@@ -29,6 +29,10 @@ function normalizeTags(tags) {
   return unique;
 }
 
+function escapeRegex(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 // Create request
 router.post('/', ensureAuth, async (req, res) => {
   try {
@@ -117,7 +121,8 @@ router.get('/:id', async (req, res) => {
   try {
     const doc = await Request.findById(req.params.id)
       .populate('author', 'username displayName avatar')
-      .populate('responses.user', 'username displayName avatar');
+      .populate('responses.user', 'username displayName avatar')
+      .populate('resolvedBy', 'username displayName');
     if (!doc) return res.status(404).json({ error: 'Not found' });
 
     const mentionCandidates = new Map();
@@ -154,11 +159,13 @@ router.get('/:id', async (req, res) => {
     }
 
     if (mentionedNames.size > 0) {
-      const mentionedRegexes = Array.from(mentionedNames).map(name => new RegExp(`^${name.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')}$`, 'i'));
-      const mentionedUsers = await User.find({ username: { $in: mentionedRegexes } }, '_id username displayName').limit(200);
+      const usernameConditions = Array.from(mentionedNames).map(name => ({
+        username: new RegExp(`^${escapeRegex(name)}$`, 'i')
+      }));
+      const mentionedUsers = await User.find({ $or: usernameConditions }, '_id username displayName').limit(200);
       for (const mentionedUser of mentionedUsers) {
         mentionCandidates.set(String(mentionedUser.username).toLowerCase(), {
-          id: mentionedUser._id,
+          _id: mentionedUser._id,
           username: mentionedUser.username,
           displayName: mentionedUser.displayName || mentionedUser.username
         });

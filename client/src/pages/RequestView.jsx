@@ -167,6 +167,7 @@ export default function RequestView({ user }){
   const isAuthor = user && doc.author?._id && user.id === doc.author._id
   const canClose = isAuthor && doc.status === 'open'
   const hasResponses = Array.isArray(doc.responses) && doc.responses.length > 0
+  const chosenUserId = doc?.resolvedBy?._id || doc?.resolvedBy || null
 
   return (
     <div>
@@ -231,8 +232,10 @@ export default function RequestView({ user }){
 
       <section>
         <h3>Responses</h3>
-        {doc.responses?.length ? doc.responses.map(r => (
-          <div key={r._id} style={{ borderTop: '1px solid #eee', paddingTop: 10, paddingBottom: 4 }}>
+        {doc.responses?.length ? doc.responses.map(r => {
+          const isChosenSolution = Boolean(chosenUserId && r.user?._id && String(r.user._id) === String(chosenUserId))
+          return (
+          <div key={r._id} style={{ borderTop: '1px solid #eee', paddingTop: 10, paddingBottom: 6, background: isChosenSolution ? '#ecfdf5' : 'transparent', borderRadius: isChosenSolution ? 8 : 0, paddingLeft: isChosenSolution ? 8 : 0, paddingRight: isChosenSolution ? 8 : 0 }}>
             <div style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
               {r.user?._id ? (
                 <Link to={`/u/${r.user._id}`}>{r.user.displayName || r.user.username}</Link>
@@ -241,6 +244,7 @@ export default function RequestView({ user }){
               )}
               <span style={{ fontSize: 11, color: '#64748b' }}>{formatPostedAt(r.createdAt)}</span>
               {r.editedAt && <span style={{ fontSize: 11, color: '#64748b' }}>edited</span>}
+              {isChosenSolution && <span style={{ fontSize: 11, color: '#047857', fontWeight: 700, background: '#d1fae5', padding: '2px 8px', borderRadius: 999 }}>chosen solution</span>}
               {user?.id && r.user?._id && user.id === r.user._id && editingResponseId !== r._id && (
                 <button
                   type="button"
@@ -248,7 +252,7 @@ export default function RequestView({ user }){
                     setEditingResponseId(r._id)
                     setEditingResponseText(r.message || '')
                   }}
-                  style={{ fontSize: 11, border: '1px solid #cbd5e1', background: '#fff', borderRadius: 999, padding: '2px 8px', cursor: 'pointer' }}
+                  style={{ fontSize: 11, color: '#0f172a', border: '1px solid #cbd5e1', background: '#f8fafc', borderRadius: 999, padding: '2px 8px', cursor: 'pointer' }}
                 >
                   Edit
                 </button>
@@ -266,27 +270,25 @@ export default function RequestView({ user }){
               <div style={{ marginTop: 4, whiteSpace: 'pre-wrap' }}>{renderResponseText(r.message, doc.mentionUsers)}</div>
             )}
           </div>
-        )) : <div>No responses yet</div>}
+        )}) : <div>No responses yet</div>}
       </section>
 
+      {doc.status !== 'closed' && (
       <section style={{ marginTop: 16 }}>
         <h4>Respond</h4>
         {user ? (
-          doc.status === 'closed' ? (
-            <div style={{ padding: 12, background: '#fee', color: '#c00', borderRadius: 6 }}>This request is closed and no longer accepting responses.</div>
-          ) : (
-            <form onSubmit={respond} style={{ display: 'grid', gap: 8 }}>
-              <textarea required value={msg} onChange={e => setMsg(e.target.value)} rows={4} disabled={loading} />
-              <div style={{ fontSize: 11, color: '#64748b' }}>
-                You can mention people with @username and include links like https://example.org
-              </div>
-              <button type="submit" disabled={loading}>{loading ? 'Sending...' : 'Send Response'}</button>
-            </form>
-          )
+          <form onSubmit={respond} style={{ display: 'grid', gap: 8 }}>
+            <textarea required value={msg} onChange={e => setMsg(e.target.value)} rows={4} disabled={loading} />
+            <div style={{ fontSize: 11, color: '#64748b' }}>
+              You can mention people with @username and include links like https://example.org
+            </div>
+            <button type="submit" disabled={loading}>{loading ? 'Sending...' : 'Send Response'}</button>
+          </form>
         ) : (
           <div>Please login to respond.</div>
         )}
       </section>
+      )}
 
       {showCloseModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>

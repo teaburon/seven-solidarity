@@ -1,23 +1,35 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { get, put } from '../api'
 
-function listToText(list) {
-  return Array.isArray(list) ? list.join(', ') : ''
-}
+const ESSENTIAL_SKILLS_BANK = [
+  'ice fishing',
+  'gardening',
+  'phone banking',
+  'organizing',
+  'teaching'
+]
 
-function textToUniqueList(text) {
-  const items = String(text || '').split(',').map(item => item.trim()).filter(Boolean)
-  const unique = []
-  const seen = new Set()
-  for (const item of items) {
-    const key = item.toLowerCase()
-    if (seen.has(key)) continue
-    seen.add(key)
-    unique.push(item)
-  }
-  return unique
-}
+const ESSENTIAL_OFFERS_BANK = [
+  'rides',
+  'groceries',
+  'translation',
+  'childcare',
+  'pet sitting'
+]
+
+const POPULAR_SOCIAL_LABELS = [
+  'TikTok',
+  'Instagram',
+  'Facebook',
+  'X / Twitter',
+  'YouTube',
+  'LinkedIn',
+  'WhatsApp',
+  'Telegram',
+  'Signal',
+  'Website'
+]
 
 export default function Profile({ user, setUser }) {
   const navigate = useNavigate()
@@ -172,7 +184,8 @@ export default function Profile({ user, setUser }) {
     // Filter suggestions
     if (value.trim()) {
       const query = value.toLowerCase()
-      const suggestions = availableSkills
+      const source = Array.from(new Set([...ESSENTIAL_SKILLS_BANK, ...availableSkills]))
+      const suggestions = source
         .filter(skill => skill.toLowerCase().includes(query) && !form.skills.includes(skill))
         .slice(0, 5)
       setSkillSuggestions(suggestions)
@@ -205,7 +218,8 @@ export default function Profile({ user, setUser }) {
     // Filter suggestions
     if (value.trim()) {
       const query = value.toLowerCase()
-      const suggestions = availableOffers
+      const source = Array.from(new Set([...ESSENTIAL_OFFERS_BANK, ...availableOffers]))
+      const suggestions = source
         .filter(offer => offer.toLowerCase().includes(query) && !form.offers.includes(offer))
         .slice(0, 5)
       setOfferSuggestions(suggestions)
@@ -350,27 +364,36 @@ export default function Profile({ user, setUser }) {
             .filter(m => m.label !== 'Discord' && m.label !== 'Signal')
             .map((method, idx) => {
               const actualIndex = form.contactMethods.findIndex(m => m === method)
+              const isSocialLabel = ['TikTok', 'Instagram', 'Facebook', 'Twitter', 'X', 'YouTube', 'LinkedIn', 'Bluesky', 'Mastodon', 'Threads'].includes(method.label)
               return (
-                <div key={actualIndex} style={{ marginBottom: 10, display: 'grid', gridTemplateColumns: '1fr 2fr auto', gap: 8, alignItems: 'start' }}>
-                  <input
-                    value={method.label}
-                    onChange={e => updateContactMethod(actualIndex, 'label', e.target.value)}
-                    placeholder="Label (e.g., Email)"
-                    style={{ fontSize: 13 }}
-                  />
-                  <input
-                    value={method.value}
-                    onChange={e => updateContactMethod(actualIndex, 'value', e.target.value)}
-                    placeholder="Your contact info"
-                    style={{ fontSize: 13 }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeContactMethod(actualIndex)}
-                    style={{ padding: '6px 10px', background: '#fee', color: '#c00', border: '1px solid #fcc', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}
-                  >
-                    Remove
-                  </button>
+                <div key={actualIndex} style={{ marginBottom: 10 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr auto', gap: 8, alignItems: 'start' }}>
+                    <input
+                      value={method.label}
+                      onChange={e => updateContactMethod(actualIndex, 'label', e.target.value)}
+                      placeholder="Label (e.g., Email)"
+                      list="social-label-options"
+                      style={{ fontSize: 13 }}
+                    />
+                    <input
+                      value={method.value}
+                      onChange={e => updateContactMethod(actualIndex, 'value', e.target.value)}
+                      placeholder={isSocialLabel ? "e.g., @username" : "Your contact info or profile link"}
+                      style={{ fontSize: 13 }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeContactMethod(actualIndex)}
+                      style={{ padding: '6px 10px', background: '#fee', color: '#c00', border: '1px solid #fcc', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                  {isSocialLabel && (
+                    <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
+                      💡 Use @username format (e.g., @myhandle) for auto-linking
+                    </div>
+                  )}
                 </div>
               )
             })}
@@ -382,6 +405,11 @@ export default function Profile({ user, setUser }) {
           >
             + Add field
           </button>
+          <datalist id="social-label-options">
+            {POPULAR_SOCIAL_LABELS.map(label => (
+              <option key={label} value={label} />
+            ))}
+          </datalist>
         </div>
 
         <div>
@@ -422,6 +450,26 @@ export default function Profile({ user, setUser }) {
                   ×
                 </button>
               </span>
+            ))}
+          </div>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
+            {ESSENTIAL_SKILLS_BANK.filter(skill => !form.skills.includes(skill)).map(skill => (
+              <button
+                key={skill}
+                type="button"
+                onClick={() => addSkill(skill)}
+                style={{
+                  padding: '4px 10px',
+                  border: '1px dashed #93c5fd',
+                  background: '#eff6ff',
+                  borderRadius: 999,
+                  fontSize: 12,
+                  color: '#1d4ed8',
+                  cursor: 'pointer'
+                }}
+              >
+                + {skill}
+              </button>
             ))}
           </div>
           <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>Skills (click suggestions or press Enter)</div>
@@ -465,6 +513,26 @@ export default function Profile({ user, setUser }) {
                   ×
                 </button>
               </span>
+            ))}
+          </div>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
+            {ESSENTIAL_OFFERS_BANK.filter(offer => !form.offers.includes(offer)).map(offer => (
+              <button
+                key={offer}
+                type="button"
+                onClick={() => addOffer(offer)}
+                style={{
+                  padding: '4px 10px',
+                  border: '1px dashed #facc15',
+                  background: '#fefce8',
+                  borderRadius: 999,
+                  fontSize: 12,
+                  color: '#a16207',
+                  cursor: 'pointer'
+                }}
+              >
+                + {offer}
+              </button>
             ))}
           </div>
           <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>What you can offer (click suggestions or press Enter)</div>

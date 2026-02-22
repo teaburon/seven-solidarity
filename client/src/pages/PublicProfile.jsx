@@ -2,6 +2,46 @@ import React, { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { get } from '../api'
 
+const PLATFORM_URLS = {
+  'TikTok': 'https://tiktok.com',
+  'Instagram': 'https://instagram.com',
+  'Facebook': 'https://facebook.com',
+  'Twitter': 'https://twitter.com',
+  'X': 'https://twitter.com',
+  'YouTube': 'https://youtube.com/@',
+  'LinkedIn': 'https://linkedin.com/in',
+  'Bluesky': 'https://bsky.app/profile',
+  'Mastodon': 'https://mastodon.social/@',
+  'Threads': 'https://threads.net/@'
+}
+
+function normalizeContactUrl(value, label) {
+  const raw = String(value || '').trim()
+  if (!raw) return ''
+  
+  // If value looks like a handle (@username), try platform conversion
+  if (raw.startsWith('@') && label && PLATFORM_URLS[label]) {
+    const handle = raw.substring(1)
+    const baseUrl = PLATFORM_URLS[label]
+    
+    // For platforms that need @, append directly; others just /handle
+    if (baseUrl.endsWith('@') || baseUrl.endsWith('/')) {
+      return baseUrl + handle
+    }
+    return baseUrl + '/' + handle
+  }
+  
+  // Otherwise try standard URL normalization
+  const hasProtocol = /^https?:\/\//i.test(raw)
+  const candidate = hasProtocol ? raw : `https://${raw}`
+  try {
+    const url = new URL(candidate)
+    return url.protocol === 'http:' || url.protocol === 'https:' ? url.toString() : ''
+  } catch {
+    return ''
+  }
+}
+
 export default function PublicProfile({ user }) {
   const { id } = useParams()
   const [profile, setProfile] = useState(null)
@@ -78,7 +118,26 @@ export default function PublicProfile({ user }) {
                   <span style={{ fontSize: 12, fontWeight: 600, color: '#0f172a', background: '#e2e8f0', padding: '2px 8px', borderRadius: 999 }}>
                     {method.label}
                   </span>
-                  <span style={{ fontSize: 13, color: '#1f2937' }}>{method.value}</span>
+                  {normalizeContactUrl(method.value, method.label) ? (
+                    <a
+                      href={normalizeContactUrl(method.value, method.label)}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 600,
+                        color: '#fff',
+                        background: '#2563eb',
+                        padding: '4px 10px',
+                        borderRadius: 999,
+                        textDecoration: 'none'
+                      }}
+                    >
+                      Open {method.label}
+                    </a>
+                  ) : (
+                    <span style={{ fontSize: 13, color: '#1f2937' }}>{method.value}</span>
+                  )}
                 </li>
               ))}
             </ul>

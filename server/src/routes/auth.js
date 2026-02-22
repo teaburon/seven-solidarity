@@ -8,6 +8,17 @@ const JWT_SECRET = process.env.SESSION_SECRET || 'dev-secret';
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 const isProduction = process.env.NODE_ENV === 'production' || !FRONTEND_URL.includes('localhost');
 
+function sanitizeAuthUser(user) {
+  if (!user) return null;
+  return {
+    id: user._id,
+    username: user.username,
+    displayName: user.displayName || user.username,
+    avatar: user.avatar,
+    openToHelp: user.openToHelp
+  };
+}
+
 router.get('/discord', passport.authenticate('discord'));
 
 router.get('/discord/callback', (req, res, next) => {
@@ -37,7 +48,7 @@ router.post('/exchange-token', async (req, res) => {
         console.error('Session save error:', err.message);
         return res.status(500).json({ error: 'Session save failed' });
       }
-      res.json({ user });
+      res.json({ user: sanitizeAuthUser(user) });
     });
   } catch (err) {
     console.error('Token exchange error:', err.message);
@@ -97,7 +108,7 @@ router.get('/me', (req, res) => {
   res.set('Pragma', 'no-cache');
   res.set('Expires', '0');
   if (!req.user) return res.json({ user: null });
-  res.json({ user: req.user });
+  res.json({ user: sanitizeAuthUser(req.user) });
 });
 
 module.exports = router;

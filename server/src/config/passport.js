@@ -33,7 +33,7 @@ module.exports = function(passport) {
 
       const user = await User.findOneAndUpdate(
         { discordId: profile.id },
-        { $set: update },
+        { $set: update, $setOnInsert: { displayName: profile.username } },
         { new: true, upsert: true, setDefaultsOnInsert: true }
       );
 

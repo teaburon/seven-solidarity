@@ -6,6 +6,7 @@ const MongoStore = require('connect-mongo');
 const passport = require('passport');
 
 const authRoutes = require('./routes/auth');
+const profileRoutes = require('./routes/profile');
 const requestRoutes = require('./routes/requests');
 
 const MONGO_URI = process.env.MONGO_URI;
@@ -77,6 +78,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/auth', authRoutes);
+app.use('/api/profile', profileRoutes);
 app.use('/api/requests', requestRoutes);
 
 app.get('/', (req, res) => res.json({ ok: true }));

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { get } from '../api'
 
-export default function Home(){
+export default function Home({ user }){
   const [list, setList] = useState([])
   const [q, setQ] = useState('')
   const [showTagFilters, setShowTagFilters] = useState(false)
@@ -140,6 +140,11 @@ export default function Home(){
         {list.map(r => (
           <li key={r._id} style={{ marginBottom: 10 }}>
             <Link to={`/r/${r._id}`}><strong>{r.title}</strong></Link>
+            {r.author?._id && (
+              <div style={{ fontSize: 12, color: '#475569' }}>
+                by <Link to={`/u/${r.author._id}`}>{r.author.displayName || r.author.username}</Link>
+              </div>
+            )}
             <div style={{ fontSize: 12, color: '#666' }}>{r.description?.slice(0, 200)}</div>
             <div style={{ fontSize: 12, color: '#888' }}>{r.tags?.join(', ')}</div>
           </li>

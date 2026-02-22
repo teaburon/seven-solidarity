@@ -13,7 +13,10 @@ const RequestSchema = new mongoose.Schema({
   author: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   responses: [ResponseSchema],
   createdAt: { type: Date, default: Date.now },
-  status: { type: String, enum: ['open', 'closed'], default: 'open' }
+  status: { type: String, enum: ['open', 'closed'], default: 'open' },
+  resolvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  resolvedAt: { type: Date },
+  solvedOutsidePlatform: { type: Boolean, default: false }
 });
 
 module.exports = mongoose.model('Request', RequestSchema);

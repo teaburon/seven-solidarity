@@ -139,4 +139,29 @@ router.post('/:id/respond', ensureAuth, async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message + ' error in respond to request' }); }
 });
 
+// Close request (owner only)
+router.post('/:id/close', ensureAuth, async (req, res) => {
+  try {
+    const doc = await Request.findById(req.params.id);
+    if (!doc) return res.status(404).json({ error: 'Not found' });
+    if (!doc.author.equals(req.user._id)) return res.status(403).json({ error: 'Forbidden' });
+    if (doc.status === 'closed') return res.status(400).json({ error: 'Already closed' });
+
+    const { winnerUserId, outsidePlatform } = req.body;
+    
+    doc.status = 'closed';
+    doc.resolvedAt = new Date();
+    doc.solvedOutsidePlatform = Boolean(outsidePlatform);
+    
+    if (winnerUserId && !outsidePlatform) {
+      doc.resolvedBy = winnerUserId;
+      await User.findByIdAndUpdate(winnerUserId, { $inc: { helpedCount: 1 } });
+    }
+    
+    await doc.save();
+    const populated = await doc.populate('author responses.user resolvedBy', 'username displayName');
+    res.json(populated);
+  } catch (err) { res.status(500).json({ error: err.message + ' error in close request' }); }
+});
+
 module.exports = router;

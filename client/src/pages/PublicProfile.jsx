@@ -184,22 +184,24 @@ export default function PublicProfile({ user }) {
           <h3 style={{ marginBottom: 12 }}>Requests ({profile.requests.length})</h3>
           <div style={{ display: 'grid', gap: 12 }}>
             {profile.requests.map(request => (
-              <div key={request._id} style={{ padding: 12, border: '1px solid #e2e8f0', borderRadius: 6, background: '#f8fafc' }}>
-                <div style={{ fontSize: 14, fontWeight: 500 }}>{request.title}</div>
-                {request.description && <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>{request.description}</div>}
-                {request.tags?.length > 0 && (
-                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
-                    {request.tags.map(tag => (
-                      <span key={tag} style={{ fontSize: 11, padding: '2px 6px', background: '#e0e7ff', borderRadius: 4 }}>
-                        {tag}
-                      </span>
-                    ))}
+              <Link key={request._id} to={`/r/${request._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div style={{ padding: 12, border: '1px solid #e2e8f0', borderRadius: 6, background: '#f8fafc', cursor: 'pointer', transition: 'background 0.2s', _hover: { background: '#f1f5f9' } }}>
+                  <div style={{ fontSize: 14, fontWeight: 500 }}>{request.title}</div>
+                  {request.description && <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>{request.description}</div>}
+                  {request.tags?.length > 0 && (
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
+                      {request.tags.map(tag => (
+                        <span key={tag} style={{ fontSize: 11, padding: '2px 6px', background: '#e0e7ff', borderRadius: 4 }}>
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 6 }}>
+                    {request.status === 'open' ? '🟢 Open' : '🔴 Closed'} • {new Date(request.createdAt).toLocaleDateString()}
                   </div>
-                )}
-                <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 6 }}>
-                  {request.status === 'open' ? '🟢 Open' : '🔴 Closed'} • {new Date(request.createdAt).toLocaleDateString()}
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </section>

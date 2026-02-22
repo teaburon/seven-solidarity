@@ -138,15 +138,30 @@ export default function Home({ user }){
 
       <ul>
         {list.map(r => (
-          <li key={r._id} style={{ marginBottom: 10 }}>
-            <Link to={`/r/${r._id}`}><strong>{r.title}</strong></Link>
-            {r.author?._id && (
-              <div style={{ fontSize: 12, color: '#475569' }}>
-                by <Link to={`/u/${r.author._id}`}>{r.author.displayName || r.author.username}</Link>
+          <li key={r._id} style={{ marginBottom: 10, listStyle: 'none' }}>
+            <Link to={`/r/${r._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+              <div style={{ padding: 12, border: '1px solid #e2e8f0', borderRadius: 6, background: '#f8fafc', cursor: 'pointer', transition: 'background 0.2s' }}>
+                <div style={{ fontSize: 14, fontWeight: 500 }}><strong>{r.title}</strong></div>
+                {r.author?._id && (
+                  <div style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>
+                    by <Link to={`/u/${r.author._id}`} onClick={e => e.stopPropagation()}>{r.author.displayName || r.author.username}</Link>
+                  </div>
+                )}
+                {r.description && <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>{r.description.slice(0, 200)}</div>}
+                {r.tags?.length > 0 && (
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
+                    {r.tags.map(tag => (
+                      <span key={tag} style={{ fontSize: 11, padding: '2px 6px', background: '#e0e7ff', borderRadius: 4 }}>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 6 }}>
+                  {r.status === 'open' ? '🟢 Open' : '🔴 Closed'} • {new Date(r.createdAt).toLocaleDateString()}
+                </div>
               </div>
-            )}
-            <div style={{ fontSize: 12, color: '#666' }}>{r.description?.slice(0, 200)}</div>
-            <div style={{ fontSize: 12, color: '#888' }}>{r.tags?.join(', ')}</div>
+            </Link>
           </li>
         ))}
       </ul>

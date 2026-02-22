@@ -14,6 +14,7 @@ const UserSchema = new mongoose.Schema({
   zipcode: { type: String },
   city: { type: String },
   state: { type: String },
+  locationUpdatedAt: { type: Date },
   locationLabel: { type: String },
   bio: { type: String, maxlength: 500 },
   contactMethods: [{

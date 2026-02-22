@@ -280,7 +280,11 @@ export default function Profile({ user, setUser }) {
         setUser({
           ...user,
           displayName: updated.displayName,
-          openToHelp: updated.openToHelp
+          openToHelp: updated.openToHelp,
+          zipcode: updated.zipcode,
+          city: updated.city,
+          state: updated.state,
+          locationUpdatedAt: updated.locationUpdatedAt || null
         })
       }
 
@@ -315,6 +319,9 @@ export default function Profile({ user, setUser }) {
           <input value={form.zipcode} onChange={e => handleZipcodeChange(e.target.value)} placeholder="e.g. 98101" />
           <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
             Zip code {cityState && `(${cityState})`}
+          </div>
+          <div style={{ fontSize: 12, color: '#9a3412', marginTop: 4 }}>
+            You can change your location every 30 days.
           </div>
         </div>
 

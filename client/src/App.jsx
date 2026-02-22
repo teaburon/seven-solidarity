@@ -11,6 +11,7 @@ const API = import.meta.env.VITE_API_URL || 'http://localhost:4000'
 
 export default function App(){
   const [user, setUser] = useState(null)
+  const [authLoading, setAuthLoading] = useState(true)
   const navigate = useNavigate()
 
   async function logout() {
@@ -61,16 +62,39 @@ export default function App(){
             .then(r => r.json())
             .then(d => setUser(d.user))
             .catch(() => {})
+            .finally(() => setAuthLoading(false))
+          return
         }
       } else {
         fetch(API + '/auth/me', { credentials: 'include', cache: 'no-store' })
           .then(r => r.json())
           .then(d => setUser(d.user))
           .catch(() => {})
+          .finally(() => setAuthLoading(false))
+        return
       }
+      setAuthLoading(false)
     }
     initAuth()
   }, [])
+
+  if (authLoading) {
+    return <div style={{ maxWidth: 900, margin: '0 auto', padding: 24, fontFamily: 'system-ui, sans-serif' }}>Loading...</div>
+  }
+
+  if (!user) {
+    return (
+      <div style={{ maxWidth: 900, margin: '0 auto', padding: 24, fontFamily: 'system-ui, sans-serif' }}>
+        <header style={{ marginBottom: 24 }}>
+          <h1 style={{ marginBottom: 8 }}>S.E.V.E.N. SOLIDARITY</h1>
+          <p style={{ color: '#475569', marginTop: 0 }}>Log in to create, view, and search requests.</p>
+        </header>
+        <a href={API + '/auth/discord'} style={{ display: 'inline-block', padding: '10px 16px', borderRadius: 8, background: '#2563eb', color: '#fff', textDecoration: 'none', fontWeight: 600 }}>
+          Login with Discord
+        </a>
+      </div>
+    )
+  }
 
   return (
     <div style={{
@@ -84,28 +108,24 @@ export default function App(){
         <nav>
           <a href="/">Home</a> {' | '}
           <Link to="/new">Create</Link> {' | '}
-          {user ? (
-            <>
-              <Link style={{ marginLeft: 8 }} to={`/u/${user.id}`}>{user.displayName || user.username}</Link>
-              <button
-                type="button"
-                onClick={logout}
-                style={{
-                  marginLeft: 8,
-                  background: 'none',
-                  border: 'none',
-                  padding: 0,
-                  cursor: 'pointer',
-                  color: '#2563eb',
-                  textDecoration: 'underline'
-                }}
-              >
-                Logout
-              </button>
-            </>
-          ) : (
-            <a href={API + '/auth/discord'}>Login with Discord</a>
-          )}
+          <>
+            <Link style={{ marginLeft: 8 }} to={`/u/${user.id}`}>{user.displayName || user.username}</Link>
+            <button
+              type="button"
+              onClick={logout}
+              style={{
+                marginLeft: 8,
+                background: 'none',
+                border: 'none',
+                padding: 0,
+                cursor: 'pointer',
+                color: '#2563eb',
+                textDecoration: 'underline'
+              }}
+            >
+              Logout
+            </button>
+          </>
         </nav>
       </header>
 
@@ -122,7 +142,7 @@ export default function App(){
 
       <footer style={{ marginTop: 60, paddingTop: 40, paddingBottom: 40, borderTop: '1px solid #e2e8f0', textAlign: 'center', color: '#64748b', fontSize: 13 }}>
         <p style={{ margin: '0 0 12px 0' }}>
-          <a href="https://github.com/your-repo/mutual-aid-app" style={{ color: '#2563eb', textDecoration: 'none' }}>GitHub Repository</a>
+          <a href="https://github.com/teaburon/seven-solidarity" target='_blank' rel='noopener noreferrer' style={{ color: '#2563eb', textDecoration: 'none' }}>GitHub Repository</a>
         </p>
         <p style={{ margin: '0 0 8px 0' }}>
           © {new Date().getFullYear()} S.E.V.E.N. SOLIDARITY. All rights reserved.
@@ -131,6 +151,7 @@ export default function App(){
           A mutual aid platform built with compassion for community support.
         </p>
       </footer>
+      <div style={{ height: 28 }} />
     </div>
   )
 }

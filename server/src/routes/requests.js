@@ -9,6 +9,11 @@ function ensureAuth(req, res, next) {
   return res.status(401).json({ error: 'Unauthorized' });
 }
 
+function ensureLocationSet(req, res, next) {
+  if (req.user && req.user.state) return next();
+  return res.status(403).json({ error: 'Set your location in Profile before viewing requests.' });
+}
+
 function normalizeTags(tags) {
   const list = Array.isArray(tags)
     ? tags
@@ -52,10 +57,14 @@ router.post('/', ensureAuth, async (req, res) => {
 });
 
 // Search & list with tag filter: ?q=term&tags=tag1,tag2
-router.get('/', async (req, res) => {
+router.get('/', ensureAuth, ensureLocationSet, async (req, res) => {
   try {
     const { q, tags, includeClosed, status } = req.query;
     const filter = {};
+
+    const sameStateUsers = await User.find({ state: req.user.state }, '_id').limit(5000);
+    const sameStateUserIds = sameStateUsers.map(user => user._id);
+    filter.author = { $in: sameStateUserIds };
     
     if (q) {
       const qRegex = new RegExp(q, 'i');
@@ -117,13 +126,16 @@ router.get('/tags', async (req, res) => {
 });
 
 // Get single
-router.get('/:id', async (req, res) => {
+router.get('/:id', ensureAuth, ensureLocationSet, async (req, res) => {
   try {
     const doc = await Request.findById(req.params.id)
-      .populate('author', 'username displayName avatar')
+      .populate('author', 'username displayName avatar state')
       .populate('responses.user', 'username displayName avatar')
       .populate('resolvedBy', 'username displayName');
     if (!doc) return res.status(404).json({ error: 'Not found' });
+    if (!doc.author?.state || String(doc.author.state).toLowerCase() !== String(req.user.state).toLowerCase()) {
+      return res.status(404).json({ error: 'Not found' });
+    }
 
     const mentionCandidates = new Map();
     if (doc.author?._id && doc.author.username) {

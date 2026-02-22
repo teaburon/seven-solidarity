@@ -27,6 +27,7 @@ export default function Home({ user }){
   const [availableTags, setAvailableTags] = useState([])
   const [selectedTags, setSelectedTags] = useState([])
   const [error, setError] = useState('')
+  const [locationGate, setLocationGate] = useState('')
 
   useEffect(() => { fetchList() }, [])
 
@@ -72,6 +73,7 @@ export default function Home({ user }){
   async function fetchListWithTags(tags) {
     try {
       setError('')
+      setLocationGate('')
       const qs = new URLSearchParams()
       if (q) qs.set('q', q)
       const wantsClosed = tags.some(tag => tag.toLowerCase() === 'closed')
@@ -83,6 +85,11 @@ export default function Home({ user }){
       const data = await get(`/requests${query ? `?${query}` : ''}`)
       setList(data)
     } catch (err) {
+      if (String(err.message || '').toLowerCase().includes('set your location')) {
+        setLocationGate('Set your location in Profile before viewing requests. You can change location every 30 days.')
+        setList([])
+        return
+      }
       setError('Failed to load requests: ' + err.message)
     }
   }
@@ -90,6 +97,7 @@ export default function Home({ user }){
   async function fetchList(){
     try {
       setError('')
+      setLocationGate('')
       const qs = new URLSearchParams()
       if (q) qs.set('q', q)
       const wantsClosed = selectedTags.some(tag => tag.toLowerCase() === 'closed')
@@ -101,6 +109,11 @@ export default function Home({ user }){
       const data = await get(`/requests${query ? `?${query}` : ''}`)
       setList(data)
     } catch (err) {
+      if (String(err.message || '').toLowerCase().includes('set your location')) {
+        setLocationGate('Set your location in Profile before viewing requests. You can change location every 30 days.')
+        setList([])
+        return
+      }
       setError('Failed to load requests: ' + err.message)
     }
   }
@@ -109,7 +122,7 @@ export default function Home({ user }){
     <div>
       {error && <div style={{ padding: 12, background: '#fee', color: '#c00', borderRadius: 6, marginBottom: 12 }}>{error}</div>}
       <div style={{ display: 'flex', gap: 8, marginBottom: 12, alignItems: 'center' }}>
-        <input placeholder="Search requests, titles, or usernames..." value={q} onChange={e => {
+        <input placeholder="Search requests, titles, or usernames..." style={{ flex: 1, minWidth: 360 }} value={q} onChange={e => {
           setQ(e.target.value)
           setTimeout(() => {
             const qs = new URLSearchParams()
@@ -120,7 +133,19 @@ export default function Home({ user }){
             const normalTags = selectedTags.filter(tag => tag.toLowerCase() !== 'closed')
             if (normalTags.length) qs.set('tags', normalTags.join(','))
             const query = qs.toString()
-            get(`/requests${query ? `?${query}` : ''}`).then(data => setList(data)).catch(err => setError('Failed to load: ' + err.message))
+            get(`/requests${query ? `?${query}` : ''}`)
+              .then(data => {
+                setLocationGate('')
+                setList(data)
+              })
+              .catch(err => {
+                if (String(err.message || '').toLowerCase().includes('set your location')) {
+                  setLocationGate('Set your location in Profile before viewing requests. You can change location every 30 days.')
+                  setList([])
+                  return
+                }
+                setError('Failed to load: ' + err.message)
+              })
           }, 300)
         }} />
         <button onClick={fetchList} style={{ whiteSpace: 'nowrap' }}>Search</button>
@@ -164,6 +189,12 @@ export default function Home({ user }){
           <button type="button" onClick={clearAllTags} style={{ background: 'transparent', color: '#2563eb', border: 'none', padding: 0, cursor: 'pointer' }}>
             Clear All
           </button>
+        </div>
+      )}
+
+      {locationGate && (
+        <div style={{ padding: 12, borderRadius: 6, marginBottom: 12, background: '#fff7ed', color: '#9a3412', border: '1px solid #fdba74' }}>
+          {locationGate} <Link to="/profile" style={{ color: '#c2410c', fontWeight: 600 }}>Set location</Link>
         </div>
       )}
 

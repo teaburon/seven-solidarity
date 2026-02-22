@@ -52,6 +52,7 @@ function sanitizeProfile(user, requests) {
     zipcode: user.zipcode || '',
     city: user.city || '',
     state: user.state || '',
+    locationUpdatedAt: user.locationUpdatedAt || null,
     locationLabel: user.locationLabel || '',
     bio: user.bio || '',
     contactMethods: user.contactMethods || [],
@@ -64,7 +65,13 @@ function sanitizeProfile(user, requests) {
   };
 }
 
-async function loadUserRequests(userId) {
+async function loadUserRequests(userId, viewerState) {
+  if (viewerState) {
+    const user = await User.findById(userId, 'state');
+    if (!user?.state || String(user.state).toLowerCase() !== String(viewerState).toLowerCase()) {
+      return [];
+    }
+  }
   const requests = await Request.find({ author: userId }).limit(200);
   return requests.sort((first, second) => {
     const firstCount = Array.isArray(first.responses) ? first.responses.length : 0;
@@ -77,7 +84,7 @@ async function loadUserRequests(userId) {
 router.get('/me', ensureAuth, async (req, res) => {
   const user = await User.findById(req.user._id);
   if (!user) return res.status(404).json({ error: 'User not found' });
-  const requests = await loadUserRequests(user._id);
+  const requests = await loadUserRequests(user._id, user.state);
   res.json({ profile: sanitizeProfile(user, requests) });
 });
 
@@ -99,12 +106,28 @@ router.put('/me', ensureAuth, async (req, res) => {
 
   if (displayName !== undefined) user.displayName = String(displayName || '').trim().slice(0, 50);
   if (zipcode !== undefined) {
-    user.zipcode = String(zipcode || '').trim().slice(0, 10);
+    const nextZipcode = String(zipcode || '').trim().slice(0, 10);
+    const changingLocation = nextZipcode !== String(user.zipcode || '').trim();
+
+    if (changingLocation && user.locationUpdatedAt) {
+      const now = Date.now();
+      const lastUpdated = new Date(user.locationUpdatedAt).getTime();
+      const daysSinceUpdate = Math.floor((now - lastUpdated) / (24 * 60 * 60 * 1000));
+      const minimumDays = 30;
+      if (daysSinceUpdate < minimumDays) {
+        return res.status(400).json({ error: `Location can only be changed every 30 days. Try again in ${minimumDays - daysSinceUpdate} day(s).` });
+      }
+    }
+
+    user.zipcode = nextZipcode;
     // Auto-lookup city and state from zipcode
     const lookup = lookupCityState(user.zipcode);
     if (lookup) {
       user.city = lookup.city;
       user.state = lookup.state;
+      if (changingLocation) {
+        user.locationUpdatedAt = new Date();
+      }
     } else {
       user.city = '';
       user.state = '';
@@ -129,7 +152,7 @@ router.put('/me', ensureAuth, async (req, res) => {
   if (openToHelp !== undefined) user.openToHelp = Boolean(openToHelp);
 
   await user.save();
-  const requests = await loadUserRequests(user._id);
+  const requests = await loadUserRequests(user._id, user.state);
   res.json({ profile: sanitizeProfile(user, requests) });
 });
 
@@ -144,10 +167,10 @@ router.get('/lookup/city-state/:zipcode', (req, res) => {
 });
 
 // Public profile GET - must be after '/lookup/' to avoid conflicts
-router.get('/:id', async (req, res) => {
+router.get('/:id', ensureAuth, async (req, res) => {
   const user = await User.findById(req.params.id);
   if (!user) return res.status(404).json({ error: 'User not found' });
-  const requests = await loadUserRequests(user._id);
+  const requests = await loadUserRequests(user._id, req.user.state);
   res.json({ profile: sanitizeProfile(user, requests) });
 });
 

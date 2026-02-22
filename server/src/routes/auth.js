@@ -15,7 +15,11 @@ function sanitizeAuthUser(user) {
     username: user.username,
     displayName: user.displayName || user.username,
     avatar: user.avatar,
-    openToHelp: user.openToHelp
+    openToHelp: user.openToHelp,
+    zipcode: user.zipcode || '',
+    city: user.city || '',
+    state: user.state || '',
+    locationUpdatedAt: user.locationUpdatedAt || null
   };
 }
 

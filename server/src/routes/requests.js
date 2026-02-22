@@ -52,7 +52,25 @@ router.get('/', async (req, res) => {
   try {
     const { q, tags, includeClosed } = req.query;
     const filter = {};
-    if (q) filter.$or = [ { title: new RegExp(q, 'i') }, { description: new RegExp(q, 'i') } ];
+    
+    if (q) {
+      const qRegex = new RegExp(q, 'i');
+      const titleDescMatch = { $or: [ { title: qRegex }, { description: qRegex } ] };
+      
+      const userMatches = await User.find({ username: qRegex }, '_id').limit(100);
+      const userIds = userMatches.map(u => u._id);
+      
+      if (userIds.length > 0) {
+        filter.$or = [
+          { title: qRegex },
+          { description: qRegex },
+          { author: { $in: userIds } }
+        ];
+      } else {
+        Object.assign(filter, titleDescMatch);
+      }
+    }
+    
     if (includeClosed !== '1') filter.status = 'open';
     if (tags) filter.tags = { $all: tags.split(',').map(t => t.trim()).filter(Boolean) };
 
@@ -169,7 +187,7 @@ router.post('/:id/respond', ensureAuth, async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message + ' error in respond to request' }); }
 });
 
-// Close request (owner only)
+// Close request (owner only) - if no responses, delete; otherwise close and track winner
 router.post('/:id/close', ensureAuth, async (req, res) => {
   try {
     const doc = await Request.findById(req.params.id);
@@ -179,6 +197,14 @@ router.post('/:id/close', ensureAuth, async (req, res) => {
 
     const { winnerUserId, outsidePlatform } = req.body;
     const hasResponses = Array.isArray(doc.responses) && doc.responses.length > 0;
+    
+    // If no responses and canceling, delete the request
+    if (!hasResponses && outsidePlatform) {
+      await doc.deleteOne();
+      await User.findByIdAndUpdate(req.user._id, { $pull: { requests: doc._id } });
+      return res.json({ ok: true, deleted: true });
+    }
+    
     if (hasResponses && !outsidePlatform && !winnerUserId) {
       return res.status(400).json({ error: 'Select a user who helped or choose solved outside platform' });
     }

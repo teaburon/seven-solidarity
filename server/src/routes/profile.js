@@ -65,7 +65,13 @@ function sanitizeProfile(user, requests) {
 }
 
 async function loadUserRequests(userId) {
-  return Request.find({ author: userId }).sort({ createdAt: -1 }).limit(200);
+  const requests = await Request.find({ author: userId }).limit(200);
+  return requests.sort((first, second) => {
+    const firstCount = Array.isArray(first.responses) ? first.responses.length : 0;
+    const secondCount = Array.isArray(second.responses) ? second.responses.length : 0;
+    if (firstCount !== secondCount) return firstCount - secondCount;
+    return new Date(second.createdAt).getTime() - new Date(first.createdAt).getTime();
+  });
 }
 
 router.get('/me', ensureAuth, async (req, res) => {

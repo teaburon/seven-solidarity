@@ -109,7 +109,7 @@ export default function App(){
         </nav>
       </header>
 
-      <main style={{ marginTop: 20, paddingLeft: 'clamp(16px, 4vw, 56px)', paddingRight: 'clamp(16px, 4vw, 56px)' }}>
+      <main style={{ marginTop: 20, paddingLeft: 'clamp(16px, 4vw, 56px)', paddingRight: 'clamp(16px, 4vw, 56px)', minHeight: '60vh' }}>
         <Routes>
           <Route path="/" element={<Home user={user} />} />
           <Route path="/new" element={<RequestForm onCreated={id => navigate(`/r/${id}`)} />} />
@@ -119,6 +119,18 @@ export default function App(){
           <Route path="/r/:id" element={<RequestView user={user} />} />
         </Routes>
       </main>
+
+      <footer style={{ marginTop: 60, paddingTop: 40, paddingBottom: 40, borderTop: '1px solid #e2e8f0', textAlign: 'center', color: '#64748b', fontSize: 13 }}>
+        <p style={{ margin: '0 0 12px 0' }}>
+          <a href="https://github.com/your-repo/mutual-aid-app" style={{ color: '#2563eb', textDecoration: 'none' }}>GitHub Repository</a>
+        </p>
+        <p style={{ margin: '0 0 8px 0' }}>
+          © {new Date().getFullYear()} S.E.V.E.N. SOLIDARITY. All rights reserved.
+        </p>
+        <p style={{ margin: 0, fontSize: 12 }}>
+          A mutual aid platform built with compassion for community support.
+        </p>
+      </footer>
     </div>
   )
 }

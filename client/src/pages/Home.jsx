@@ -2,6 +2,24 @@ import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { get } from '../api'
 
+function formatPostedAt(value) {
+  if (!value) return ''
+  const date = new Date(value)
+  const now = Date.now()
+  const delta = now - date.getTime()
+  const oneHour = 60 * 60 * 1000
+  const oneDay = 24 * oneHour
+  if (delta < oneHour) {
+    const mins = Math.max(1, Math.floor(delta / (60 * 1000)))
+    return `${mins} minute${mins === 1 ? '' : 's'} ago`
+  }
+  if (delta < oneDay) {
+    const hours = Math.max(1, Math.floor(delta / oneHour))
+    return `${hours} hour${hours === 1 ? '' : 's'} ago`
+  }
+  return date.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' }).replace(/\//g, '-')
+}
+
 export default function Home({ user }){
   const [list, setList] = useState([])
   const [q, setQ] = useState('')
@@ -15,9 +33,10 @@ export default function Home({ user }){
   async function loadTags() {
     try {
       const tags = await get('/requests/tags')
-      setAvailableTags(Array.isArray(tags) ? tags : [])
+      const normalized = Array.isArray(tags) ? tags : []
+      setAvailableTags(['closed', ...normalized])
     } catch {
-      setAvailableTags([])
+      setAvailableTags(['closed'])
     }
   }
 
@@ -30,19 +49,42 @@ export default function Home({ user }){
   }
 
   function toggleTag(tag) {
-    setSelectedTags(prev =>
-      prev.some(t => t.toLowerCase() === tag.toLowerCase())
+    setSelectedTags(prev => {
+      const updated = prev.some(t => t.toLowerCase() === tag.toLowerCase())
         ? prev.filter(t => t.toLowerCase() !== tag.toLowerCase())
         : [...prev, tag]
-    )
+      setTimeout(() => fetchListWithTags(updated), 0)
+      return updated
+    })
   }
 
   function removeSelectedTag(tagToRemove) {
-    setSelectedTags(prev => prev.filter(tag => tag.toLowerCase() !== tagToRemove.toLowerCase()))
+    const updated = selectedTags.filter(tag => tag.toLowerCase() !== tagToRemove.toLowerCase())
+    setSelectedTags(updated)
+    fetchListWithTags(updated)
   }
 
   function clearAllTags() {
     setSelectedTags([])
+    fetchListWithTags([])
+  }
+
+  async function fetchListWithTags(tags) {
+    try {
+      setError('')
+      const qs = new URLSearchParams()
+      if (q) qs.set('q', q)
+      const wantsClosed = tags.some(tag => tag.toLowerCase() === 'closed')
+      if (wantsClosed) qs.set('status', 'closed')
+      else if (q) qs.set('includeClosed', '1')
+      const normalTags = tags.filter(tag => tag.toLowerCase() !== 'closed')
+      if (normalTags.length) qs.set('tags', normalTags.join(','))
+      const query = qs.toString()
+      const data = await get(`/requests${query ? `?${query}` : ''}`)
+      setList(data)
+    } catch (err) {
+      setError('Failed to load requests: ' + err.message)
+    }
   }
 
   async function fetchList(){
@@ -50,7 +92,11 @@ export default function Home({ user }){
       setError('')
       const qs = new URLSearchParams()
       if (q) qs.set('q', q)
-      if (selectedTags.length) qs.set('tags', selectedTags.join(','))
+      const wantsClosed = selectedTags.some(tag => tag.toLowerCase() === 'closed')
+      if (wantsClosed) qs.set('status', 'closed')
+      else if (q) qs.set('includeClosed', '1')
+      const normalTags = selectedTags.filter(tag => tag.toLowerCase() !== 'closed')
+      if (normalTags.length) qs.set('tags', normalTags.join(','))
       const query = qs.toString()
       const data = await get(`/requests${query ? `?${query}` : ''}`)
       setList(data)
@@ -63,9 +109,22 @@ export default function Home({ user }){
     <div>
       {error && <div style={{ padding: 12, background: '#fee', color: '#c00', borderRadius: 6, marginBottom: 12 }}>{error}</div>}
       <div style={{ display: 'flex', gap: 8, marginBottom: 12, alignItems: 'center' }}>
-        <input placeholder="Search" value={q} onChange={e => setQ(e.target.value)} />
-        <button type="button" onClick={toggleTagFilters}>{showTagFilters ? 'Hide Filters' : 'Filter Tags'}</button>
-        <button onClick={fetchList}>Search</button>
+        <input placeholder="Search requests, titles, or usernames..." value={q} onChange={e => {
+          setQ(e.target.value)
+          setTimeout(() => {
+            const qs = new URLSearchParams()
+            if (e.target.value) qs.set('q', e.target.value)
+            const wantsClosed = selectedTags.some(tag => tag.toLowerCase() === 'closed')
+            if (wantsClosed) qs.set('status', 'closed')
+            else if (e.target.value) qs.set('includeClosed', '1')
+            const normalTags = selectedTags.filter(tag => tag.toLowerCase() !== 'closed')
+            if (normalTags.length) qs.set('tags', normalTags.join(','))
+            const query = qs.toString()
+            get(`/requests${query ? `?${query}` : ''}`).then(data => setList(data)).catch(err => setError('Failed to load: ' + err.message))
+          }, 300)
+        }} />
+        <button onClick={fetchList} style={{ whiteSpace: 'nowrap' }}>Search</button>
+        <button type="button" onClick={toggleTagFilters} style={{ whiteSpace: 'nowrap' }}>{showTagFilters ? 'Hide Filters' : 'Filter Tags'}</button>
       </div>
 
       {selectedTags.length > 0 && (
@@ -138,15 +197,27 @@ export default function Home({ user }){
 
       <ul>
         {list.map(r => (
-          <li key={r._id} style={{ marginBottom: 10 }}>
-            <Link to={`/r/${r._id}`}><strong>{r.title}</strong></Link>
-            {r.author?._id && (
-              <div style={{ fontSize: 12, color: '#475569' }}>
-                by <Link to={`/u/${r.author._id}`}>{r.author.displayName || r.author.username}</Link>
+          <li key={r._id} style={{ marginBottom: 10, listStyle: 'none' }}>
+            <Link to={`/r/${r._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+              <div style={{ padding: 12, border: '1px solid #e2e8f0', borderRadius: 6, background: '#f8fafc', cursor: 'pointer', transition: 'background 0.2s' }}>
+                <div style={{ fontSize: 14, fontWeight: 500 }}><strong>{r.title}</strong></div>
+                <div style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>
+                  {r.author?.locationLabel || (r.author?.city && r.author?.state ? `${r.author.city}, ${r.author.state}` : (r.author?.zipcode ? `Zip: ${r.author.zipcode}` : 'Location unavailable'))}
+                </div>
+                {r.tags?.length > 0 && (
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
+                    {r.tags.map(tag => (
+                      <span key={tag} style={{ fontSize: 11, padding: '3px 10px', background: '#e0e7ff', borderRadius: 999, color: '#3730a3' }}>
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 6 }}>
+                  {r.status === 'open' ? '🟢 Open' : '🔴 Closed'} • {Array.isArray(r.responses) ? r.responses.length : 0} responses • {formatPostedAt(r.createdAt)}
+                </div>
               </div>
-            )}
-            <div style={{ fontSize: 12, color: '#666' }}>{r.description?.slice(0, 200)}</div>
-            <div style={{ fontSize: 12, color: '#888' }}>{r.tags?.join(', ')}</div>
+            </Link>
           </li>
         ))}
       </ul>

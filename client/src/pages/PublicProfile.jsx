@@ -2,6 +2,24 @@ import React, { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { get } from '../api'
 
+function formatPostedAt(value) {
+  if (!value) return ''
+  const date = new Date(value)
+  const now = Date.now()
+  const delta = now - date.getTime()
+  const oneHour = 60 * 60 * 1000
+  const oneDay = 24 * oneHour
+  if (delta < oneHour) {
+    const mins = Math.max(1, Math.floor(delta / (60 * 1000)))
+    return `${mins} minute${mins === 1 ? '' : 's'} ago`
+  }
+  if (delta < oneDay) {
+    const hours = Math.max(1, Math.floor(delta / oneHour))
+    return `${hours} hour${hours === 1 ? '' : 's'} ago`
+  }
+  return date.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' }).replace(/\//g, '-')
+}
+
 const PLATFORM_URLS = {
   'TikTok': 'https://tiktok.com/',
   'Instagram': 'https://instagram.com/',
@@ -184,22 +202,24 @@ export default function PublicProfile({ user }) {
           <h3 style={{ marginBottom: 12 }}>Requests ({profile.requests.length})</h3>
           <div style={{ display: 'grid', gap: 12 }}>
             {profile.requests.map(request => (
-              <div key={request._id} style={{ padding: 12, border: '1px solid #e2e8f0', borderRadius: 6, background: '#f8fafc' }}>
-                <div style={{ fontSize: 14, fontWeight: 500 }}>{request.title}</div>
-                {request.description && <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>{request.description}</div>}
-                {request.tags?.length > 0 && (
-                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
-                    {request.tags.map(tag => (
-                      <span key={tag} style={{ fontSize: 11, padding: '2px 6px', background: '#e0e7ff', borderRadius: 4 }}>
-                        {tag}
-                      </span>
-                    ))}
+              <Link key={request._id} to={`/r/${request._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div style={{ padding: 12, border: '1px solid #e2e8f0', borderRadius: 6, background: '#f8fafc', cursor: 'pointer', transition: 'background 0.2s' }}>
+                  <div style={{ fontSize: 14, fontWeight: 500 }}>{request.title}</div>
+                  {request.description && <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>{request.description}</div>}
+                  {request.tags?.length > 0 && (
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
+                      {request.tags.map(tag => (
+                        <span key={tag} style={{ fontSize: 11, padding: '3px 10px', background: '#e0e7ff', borderRadius: 999, color: '#3730a3' }}>
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 6 }}>
+                    {request.status === 'open' ? '🟢 Open' : '🔴 Closed'} • {Array.isArray(request.responses) ? request.responses.length : 0} responses • {formatPostedAt(request.createdAt)}
                   </div>
-                )}
-                <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 6 }}>
-                  {request.status === 'open' ? '🟢 Open' : '🔴 Closed'} • {new Date(request.createdAt).toLocaleDateString()}
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </section>

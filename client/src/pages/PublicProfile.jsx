@@ -118,11 +118,13 @@ export default function PublicProfile({ user }) {
             <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gap: 6 }}>
               {contactItems.map((method, idx) => (
                 <li key={idx} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: '#0f172a', background: '#e2e8f0', padding: '2px 8px', borderRadius: 999 }}>
-                    {method.label}
-                  </span>
                   {method.label === 'Discord' || !normalizeContactUrl(method.value, method.label) ? (
-                    <span style={{ fontSize: 13, color: '#1f2937' }}>{method.value}</span>
+                    <>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: '#0f172a', background: '#e2e8f0', padding: '2px 8px', borderRadius: 999 }}>
+                        {method.label}
+                      </span>
+                      <span style={{ fontSize: 13, color: '#1f2937' }}>{method.value}</span>
+                    </>
                   ) : (
                     <a
                       href={normalizeContactUrl(method.value, method.label)}
@@ -138,7 +140,7 @@ export default function PublicProfile({ user }) {
                         textDecoration: 'none'
                       }}
                     >
-                      Open {method.label}
+                      {method.label}
                     </a>
                   )}
                 </li>

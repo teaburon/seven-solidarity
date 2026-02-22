@@ -175,25 +175,25 @@ export default function RequestView({ user }){
           {doc.editedAt && <span style={{ fontSize: 11, color: '#64748b' }}>edited</span>}
         </h2>
         {canClose && (
-          <button
-            type="button"
-            onClick={() => setShowCloseModal(true)}
-            style={{ padding: '8px 14px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: 999, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}
-          >
-            {hasResponses ? 'Close Request' : 'Cancel Request'}
-          </button>
+          <div style={{ display: 'flex', gap: 6 }}>
+            {isAuthor && !editRequestMode && (
+              <button type="button" onClick={() => setEditRequestMode(true)} style={{ padding: '8px 12px', borderRadius: 999, border: '1px solid #cbd5e1', background: '#f8fafc', color: '#0f172a', cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>
+                Edit
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => setShowCloseModal(true)}
+              style={{ padding: '8px 14px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: 999, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}
+            >
+              {hasResponses ? 'Close' : 'Cancel'}
+            </button>
+          </div>
         )}
       </div>
       <div style={{ marginTop: 6, marginBottom: 10, color: '#64748b', fontSize: 12 }}>
         Posted {formatPostedAt(doc.createdAt)}
       </div>
-      {isAuthor && !editRequestMode && (
-        <div style={{ marginBottom: 10 }}>
-          <button type="button" onClick={() => setEditRequestMode(true)} style={{ padding: '6px 10px', borderRadius: 999, border: '1px solid #cbd5e1', background: '#fff', cursor: 'pointer' }}>
-            Edit Request
-          </button>
-        </div>
-      )}
       {doc.author?._id && (
         <div style={{ marginBottom: 8, fontSize: 13, color: '#475569' }}>
           Requested by <Link to={`/u/${doc.author._id}`}>{doc.author.displayName || doc.author.username}</Link>
@@ -222,6 +222,9 @@ export default function RequestView({ user }){
             </div>
           )}
         </>
+      )}
+      {doc.description && doc.tags?.length === 0 && (
+        <div style={{ marginBottom: 16 }}>{renderResponseText(doc.description, doc.mentionUsers)}</div>
       )}
 
       <section>
@@ -267,13 +270,17 @@ export default function RequestView({ user }){
       <section style={{ marginTop: 16 }}>
         <h4>Respond</h4>
         {user ? (
-          <form onSubmit={respond} style={{ display: 'grid', gap: 8 }}>
-            <textarea required value={msg} onChange={e => setMsg(e.target.value)} rows={4} disabled={loading} />
-            <div style={{ fontSize: 11, color: '#64748b' }}>
-              You can mention people with @username and include links like https://example.org
-            </div>
-            <button type="submit" disabled={loading}>{loading ? 'Sending...' : 'Send Response'}</button>
-          </form>
+          doc.status === 'closed' ? (
+            <div style={{ padding: 12, background: '#fee', color: '#c00', borderRadius: 6 }}>This request is closed and no longer accepting responses.</div>
+          ) : (
+            <form onSubmit={respond} style={{ display: 'grid', gap: 8 }}>
+              <textarea required value={msg} onChange={e => setMsg(e.target.value)} rows={4} disabled={loading} />
+              <div style={{ fontSize: 11, color: '#64748b' }}>
+                You can mention people with @username and include links like https://example.org
+              </div>
+              <button type="submit" disabled={loading}>{loading ? 'Sending...' : 'Send Response'}</button>
+            </form>
+          )
         ) : (
           <div>Please login to respond.</div>
         )}
@@ -316,7 +323,7 @@ export default function RequestView({ user }){
                 type="button"
                 onClick={() => setShowCloseModal(false)}
                 disabled={loading}
-                style={{ padding: 10, background: '#e2e8f0', border: 'none', borderRadius: 4, cursor: 'pointer', fontWeight: 600 }}
+                style={{ padding: 10, background: '#e2e8f0', color: '#0f172a', border: 'none', borderRadius: 4, cursor: 'pointer', fontWeight: 600 }}
               >
                 Back
               </button>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { get, post, put } from '../api'
 
 function formatPostedAt(value) {
@@ -62,6 +62,7 @@ function renderResponseText(message, mentionUsers) {
 
 export default function RequestView({ user }){
   const { id } = useParams()
+  const navigate = useNavigate()
   const [doc, setDoc] = useState(null)
   const [msg, setMsg] = useState('')
   const [error, setError] = useState('')
@@ -108,11 +109,15 @@ export default function RequestView({ user }){
     try {
       setError('')
       setLoading(true)
-      await post('/api/requests/' + id + '/close', { 
+      const result = await post('/api/requests/' + id + '/close', {
         winnerUserId: outsidePlatform ? null : winnerUserId, 
         outsidePlatform 
       })
       setShowCloseModal(false)
+      if (result?.deleted) {
+        navigate(`/u/${user?.id || doc?.author?._id}`)
+        return
+      }
       load()
     } catch (err) {
       setError('Failed to close request: ' + err.message)
@@ -211,7 +216,7 @@ export default function RequestView({ user }){
         </form>
       ) : (
         <>
-          <div style={{ marginBottom: 8 }}>{doc.description}</div>
+          <div style={{ marginBottom: 8, whiteSpace: 'pre-wrap' }}>{renderResponseText(doc.description, doc.mentionUsers)}</div>
           {doc.tags?.length > 0 && (
             <div style={{ marginBottom: 16, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
               {doc.tags.map(tag => (
@@ -222,9 +227,6 @@ export default function RequestView({ user }){
             </div>
           )}
         </>
-      )}
-      {doc.description && doc.tags?.length === 0 && (
-        <div style={{ marginBottom: 16 }}>{renderResponseText(doc.description, doc.mentionUsers)}</div>
       )}
 
       <section>

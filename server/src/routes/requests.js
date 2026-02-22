@@ -50,7 +50,7 @@ router.post('/', ensureAuth, async (req, res) => {
 // Search & list with tag filter: ?q=term&tags=tag1,tag2
 router.get('/', async (req, res) => {
   try {
-    const { q, tags, includeClosed } = req.query;
+    const { q, tags, includeClosed, status } = req.query;
     const filter = {};
     
     if (q) {
@@ -71,7 +71,8 @@ router.get('/', async (req, res) => {
       }
     }
     
-    if (includeClosed !== '1') filter.status = 'open';
+    if (status === 'closed') filter.status = 'closed';
+    else if (includeClosed !== '1') filter.status = 'open';
     if (tags) filter.tags = { $all: tags.split(',').map(t => t.trim()).filter(Boolean) };
 
     const list = await Request.find(filter)
@@ -133,6 +134,33 @@ router.get('/:id', async (req, res) => {
           id: response.user._id,
           username: response.user.username,
           displayName: response.user.displayName || response.user.username
+        });
+      }
+    }
+
+    const mentionPattern = /@([a-zA-Z0-9_.-]+)/g;
+    const mentionedNames = new Set();
+    const descriptionText = String(doc.description || '');
+    let found;
+    while ((found = mentionPattern.exec(descriptionText)) !== null) {
+      mentionedNames.add(found[1].toLowerCase());
+    }
+    for (const response of doc.responses || []) {
+      const responseText = String(response?.message || '');
+      let matched;
+      while ((matched = mentionPattern.exec(responseText)) !== null) {
+        mentionedNames.add(matched[1].toLowerCase());
+      }
+    }
+
+    if (mentionedNames.size > 0) {
+      const mentionedRegexes = Array.from(mentionedNames).map(name => new RegExp(`^${name.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')}$`, 'i'));
+      const mentionedUsers = await User.find({ username: { $in: mentionedRegexes } }, '_id username displayName').limit(200);
+      for (const mentionedUser of mentionedUsers) {
+        mentionCandidates.set(String(mentionedUser.username).toLowerCase(), {
+          id: mentionedUser._id,
+          username: mentionedUser.username,
+          displayName: mentionedUser.displayName || mentionedUser.username
         });
       }
     }

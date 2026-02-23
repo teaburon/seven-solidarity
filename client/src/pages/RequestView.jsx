@@ -35,7 +35,7 @@ function renderResponseText(message, mentionUsers) {
 
     if (matchValue.startsWith('http://') || matchValue.startsWith('https://')) {
       nodes.push(
-        <a key={`url-${idx}`} href={matchValue} target="_blank" rel="noreferrer" style={{ color: '#2563eb' }}>
+        <a key={`url-${idx}`} href={matchValue} target="_blank" rel="noreferrer" style={{ color: '#bd00ff' }}>
           {matchValue}
         </a>
       )
@@ -44,7 +44,7 @@ function renderResponseText(message, mentionUsers) {
       const found = mentionMap.get(username)
       if (found?._id || found?.id) {
         nodes.push(
-          <Link key={`mention-${idx}`} to={`/u/${found._id || found.id}`} style={{ color: '#2563eb' }}>
+          <Link key={`mention-${idx}`} to={`/u/${found._id || found.id}`} style={{ color: '#bd00ff' }}>
             {matchValue}
           </Link>
         )
@@ -175,7 +175,7 @@ export default function RequestView({ user }){
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
         <h2 style={{ display: 'flex', alignItems: 'center', gap: 12, margin: 0 }}>
           {doc.title}
-          <span style={{ fontSize: 14, fontWeight: 600, color: doc.status === 'open' ? '#10b981' : '#ef4444' }}>
+          <span style={{ fontSize: 14, fontWeight: 600, color: doc.status === 'open' ? '#10b981' : '#c70000' }}>
             {doc.status === 'open' ? '🟢 Open' : '🔴 Closed'}
           </span>
           {doc.editedAt && <span style={{ fontSize: 11, color: '#64748b' }}>edited</span>}
@@ -183,14 +183,14 @@ export default function RequestView({ user }){
         {canClose && (
           <div style={{ display: 'flex', gap: 6 }}>
             {isAuthor && !editRequestMode && (
-              <button type="button" onClick={() => setEditRequestMode(true)} style={{ padding: '8px 12px', borderRadius: 999, border: '1px solid #cbd5e1', background: '#f8fafc', color: '#0f172a', cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>
+              <button type="button" onClick={() => setEditRequestMode(true)} style={{ padding: '8px 12px', borderRadius: 999, border: '1px solid #bd00ff', background: '#f3e5ff', color: '#000', cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>
                 Edit
               </button>
             )}
             <button
               type="button"
               onClick={() => setShowCloseModal(true)}
-              style={{ padding: '8px 14px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: 999, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}
+              style={{ padding: '8px 14px', background: '#c70000', color: '#fff', border: 'none', borderRadius: 999, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}
             >
               {hasResponses ? 'Close' : 'Cancel'}
             </button>
@@ -205,14 +205,19 @@ export default function RequestView({ user }){
           Requested by <Link to={`/u/${doc.author._id}`}>{doc.author.displayName || doc.author.username}</Link>
         </div>
       )}
+      {doc.requestLocation?.city && (
+        <div style={{ marginBottom: 8, fontSize: 13, color: '#475569' }}>
+          Location: {doc.requestLocation.city}, {doc.requestLocation.state}
+        </div>
+      )}
       {editRequestMode ? (
         <form onSubmit={saveRequestEdits} style={{ display: 'grid', gap: 8, marginBottom: 16 }}>
           <input value={editTitle} onChange={e => setEditTitle(e.target.value)} required />
           <textarea value={editDescription} onChange={e => setEditDescription(e.target.value)} rows={4} />
           <input value={editTags} onChange={e => setEditTags(e.target.value)} placeholder="tag1, tag2" />
           <div style={{ display: 'flex', gap: 8 }}>
-            <button type="submit" disabled={loading}>{loading ? 'Saving...' : 'Save'}</button>
-            <button type="button" onClick={() => setEditRequestMode(false)} disabled={loading}>Cancel</button>
+            <button type="submit" disabled={loading} style={{ background: '#bd00ff', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 12px', cursor: 'pointer', fontWeight: 600 }}>{loading ? 'Saving...' : 'Save'}</button>
+            <button type="button" onClick={() => setEditRequestMode(false)} disabled={loading} style={{ background: '#e5e7eb', color: '#000', border: 'none', borderRadius: 6, padding: '8px 12px', cursor: 'pointer' }}>Cancel</button>
           </div>
         </form>
       ) : (
@@ -221,7 +226,7 @@ export default function RequestView({ user }){
           {doc.tags?.length > 0 && (
             <div style={{ marginBottom: 16, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
               {doc.tags.map(tag => (
-                <span key={tag} style={{ fontSize: 11, padding: '3px 10px', background: '#e0e7ff', borderRadius: 999, color: '#3730a3' }}>
+                <span key={tag} style={{ fontSize: 11, padding: '3px 10px', background: '#f3e5ff', borderRadius: 999, color: '#000' }}>
                   #{tag}
                 </span>
               ))}
@@ -237,6 +242,14 @@ export default function RequestView({ user }){
           return (
           <div key={r._id} style={{ borderTop: '1px solid #eee', paddingTop: 10, paddingBottom: 6, background: isChosenSolution ? '#ecfdf5' : 'transparent', borderRadius: isChosenSolution ? 8 : 0, paddingLeft: isChosenSolution ? 8 : 0, paddingRight: isChosenSolution ? 8 : 0 }}>
             <div style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              {r.user?._id && user?.id === r.user._id && editingResponseId !== r._id && doc.status === 'open' && (
+                <button type="button" onClick={() => {
+                  setEditingResponseId(r._id)
+                  setEditingResponseText(r.message || '')
+                }} style={{ padding: '4px 8px', borderRadius: 6, fontSize: 11, border: '1px solid #bd00ff', background: '#f3e5ff', cursor: 'pointer', color: '#000', fontWeight: 600 }}>
+                  Edit
+                </button>
+              )}
               {r.user?._id ? (
                 <Link to={`/u/${r.user._id}`}>{r.user.displayName || r.user.username}</Link>
               ) : (
@@ -245,25 +258,13 @@ export default function RequestView({ user }){
               <span style={{ fontSize: 11, color: '#64748b' }}>{formatPostedAt(r.createdAt)}</span>
               {r.editedAt && <span style={{ fontSize: 11, color: '#64748b' }}>edited</span>}
               {isChosenSolution && <span style={{ fontSize: 11, color: '#047857', fontWeight: 700, background: '#d1fae5', padding: '2px 8px', borderRadius: 999 }}>chosen solution</span>}
-              {user?.id && r.user?._id && user.id === r.user._id && editingResponseId !== r._id && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEditingResponseId(r._id)
-                    setEditingResponseText(r.message || '')
-                  }}
-                  style={{ fontSize: 11, color: '#0f172a', border: '1px solid #cbd5e1', background: '#f8fafc', borderRadius: 999, padding: '2px 8px', cursor: 'pointer' }}
-                >
-                  Edit
-                </button>
-              )}
             </div>
             {editingResponseId === r._id ? (
               <div style={{ marginTop: 6, display: 'grid', gap: 6 }}>
                 <textarea value={editingResponseText} onChange={e => setEditingResponseText(e.target.value)} rows={3} disabled={loading} />
                 <div style={{ display: 'flex', gap: 8 }}>
-                  <button type="button" onClick={() => saveResponseEdit(r._id)} disabled={loading}>Save</button>
-                  <button type="button" onClick={() => setEditingResponseId('')} disabled={loading}>Cancel</button>
+                  <button type="button" onClick={() => saveResponseEdit(r._id)} disabled={loading} style={{ background: '#bd00ff', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 12px', cursor: 'pointer', fontWeight: 600 }}>Save</button>
+                  <button type="button" onClick={() => setEditingResponseId('')} disabled={loading} style={{ background: '#e5e7eb', color: '#000', border: 'none', borderRadius: 6, padding: '6px 12px', cursor: 'pointer' }}>Cancel</button>
                 </div>
               </div>
             ) : (
@@ -282,7 +283,7 @@ export default function RequestView({ user }){
             <div style={{ fontSize: 11, color: '#64748b' }}>
               You can mention people with @username and include links like https://example.org
             </div>
-            <button type="submit" disabled={loading}>{loading ? 'Sending...' : 'Send Response'}</button>
+            <button type="submit" disabled={loading} style={{ background: '#bd00ff', color: '#fff', border: 'none', borderRadius: 6, padding: '10px 16px', cursor: 'pointer', fontWeight: 600 }}>{loading ? 'Sending...' : 'Send Response'}</button>
           </form>
         ) : (
           <div>Please login to respond.</div>
@@ -319,7 +320,7 @@ export default function RequestView({ user }){
                 type="button"
                 onClick={() => handleClose(null, true)}
                 disabled={loading}
-                style={{ flex: 1, padding: 10, background: '#10b981', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontWeight: 600 }}
+                style={{ flex: 1, padding: 10, background: '#bd00ff', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontWeight: 600 }}
               >
                 {doc.responses?.length ? 'Solved outside platform' : 'Cancel request'}
               </button>
@@ -327,9 +328,9 @@ export default function RequestView({ user }){
                 type="button"
                 onClick={() => setShowCloseModal(false)}
                 disabled={loading}
-                style={{ padding: 10, background: '#e2e8f0', color: '#0f172a', border: 'none', borderRadius: 4, cursor: 'pointer', fontWeight: 600 }}
+                style={{ flex: 1, padding: 10, background: '#e5e7eb', color: '#000', border: 'none', borderRadius: 4, cursor: 'pointer' }}
               >
-                Back
+                Close
               </button>
             </div>
           </div>

@@ -159,7 +159,7 @@ export default function PublicProfile({ user }) {
                         fontSize: 12,
                         fontWeight: 600,
                         color: '#fff',
-                        background: '#2563eb',
+                        background: '#bd00ff',
                         padding: '4px 10px',
                         borderRadius: 999,
                         textDecoration: 'none'
@@ -205,6 +205,7 @@ export default function PublicProfile({ user }) {
               <Link key={request._id} to={`/r/${request._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                 <div style={{ padding: 12, border: '1px solid #e2e8f0', borderRadius: 6, background: '#f8fafc', cursor: 'pointer', transition: 'background 0.2s' }}>
                   <div style={{ fontSize: 14, fontWeight: 500 }}>{request.title}</div>
+                  {request.requestLocation?.city && <div style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>{request.requestLocation.city}, {request.requestLocation.state}</div>}
                   {request.description && <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>{request.description}</div>}
                   {request.tags?.length > 0 && (
                     <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>

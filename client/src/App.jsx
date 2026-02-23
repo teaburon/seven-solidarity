@@ -89,7 +89,7 @@ export default function App(){
           <h1 style={{ marginBottom: 8 }}>S.E.V.E.N. SOLIDARITY</h1>
           <p style={{ color: '#475569', marginTop: 0 }}>Log in to create, view, and search requests.</p>
         </header>
-        <a href={API + '/auth/discord'} style={{ display: 'inline-block', padding: '10px 16px', borderRadius: 8, background: '#2563eb', color: '#fff', textDecoration: 'none', fontWeight: 600 }}>
+        <a href={API + '/auth/discord'} style={{ display: 'inline-block', padding: '10px 16px', borderRadius: 8, background: '#bd00ff', color: '#fff', textDecoration: 'none', fontWeight: 600 }}>
           Login with Discord
         </a>
       </div>
@@ -119,7 +119,7 @@ export default function App(){
                 border: 'none',
                 padding: 0,
                 cursor: 'pointer',
-                color: '#2563eb',
+                color: '#bd00ff',
                 textDecoration: 'underline'
               }}
             >
@@ -132,7 +132,7 @@ export default function App(){
       <main style={{ marginTop: 20, paddingLeft: 'clamp(16px, 4vw, 56px)', paddingRight: 'clamp(16px, 4vw, 56px)', minHeight: '60vh' }}>
         <Routes>
           <Route path="/" element={<Home user={user} />} />
-          <Route path="/new" element={<RequestForm onCreated={id => navigate(`/r/${id}`)} />} />
+          <Route path="/new" element={<RequestForm user={user} onCreated={id => navigate(`/r/${id}`)} />} />
           <Route path="/profile" element={<Profile user={user} setUser={setUser} />} />
           <Route path="/u/:id" element={<PublicProfile user={user} />} />
           <Route path="/auth/failure" element={<AuthFailure />} />
@@ -142,7 +142,7 @@ export default function App(){
 
       <footer style={{ marginTop: 60, paddingTop: 40, paddingBottom: 40, borderTop: '1px solid #e2e8f0', textAlign: 'center', color: '#64748b', fontSize: 13 }}>
         <p style={{ margin: '0 0 12px 0' }}>
-          <a href="https://github.com/teaburon/seven-solidarity" target='_blank' rel='noopener noreferrer' style={{ color: '#2563eb', textDecoration: 'none' }}>GitHub Repository</a>
+          <a href="https://github.com/teaburon/seven-solidarity" target='_blank' rel='noopener noreferrer' style={{ color: '#bd00ff', textDecoration: 'none' }}>GitHub Repository</a>
         </p>
         <p style={{ margin: '0 0 8px 0' }}>
           © {new Date().getFullYear()} S.E.V.E.N. SOLIDARITY. All rights reserved.

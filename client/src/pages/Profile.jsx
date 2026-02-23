@@ -408,7 +408,7 @@ export default function Profile({ user, setUser }) {
           <button
             type="button"
             onClick={addContactMethod}
-            style={{ marginTop: 8, padding: '8px 12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 6, cursor: 'pointer', fontSize: 13, color: '#2563eb' }}
+            style={{ marginTop: 8, padding: '8px 12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 6, cursor: 'pointer', fontSize: 13, color: '#bd00ff' }}
           >
             + Add field
           </button>
@@ -558,10 +558,10 @@ export default function Profile({ user, setUser }) {
         </div>
 
         <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginTop: 8 }}>
-          <button type="submit" disabled={saving}>
+          <button type="submit" disabled={saving} style={{ background: '#bd00ff', color: '#fff', border: 'none', borderRadius: 6, padding: '10px 16px', cursor: 'pointer', fontWeight: 600 }}>
             {saving ? 'Saving...' : 'Save Profile'}
           </button>
-          <Link to={`/u/${user.id}`} style={{ color: '#2563eb', textDecoration: 'none' }}>
+          <Link to={`/u/${user.id}`} style={{ color: '#bd00ff', textDecoration: 'none' }}>
             View Profile
           </Link>
         </div>

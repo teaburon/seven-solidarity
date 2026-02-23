@@ -186,7 +186,7 @@ export default function Home({ user }){
               </button>
             </span>
           ))}
-          <button type="button" onClick={clearAllTags} style={{ background: 'transparent', color: '#2563eb', border: 'none', padding: 0, cursor: 'pointer' }}>
+          <button type="button" onClick={clearAllTags} style={{ background: 'transparent', color: '#bd00ff', border: 'none', padding: 0, cursor: 'pointer' }}>
             Clear All
           </button>
         </div>
@@ -212,7 +212,7 @@ export default function Home({ user }){
                   style={{
                     padding: '6px 10px',
                     borderRadius: 999,
-                    border: selected ? '1px solid #2563eb' : '1px solid #cbd5e1',
+                    border: selected ? '1px solid #bd00ff' : '1px solid #cbd5e1',
                     background: selected ? '#dbeafe' : '#f8fafc',
                     color: '#0f172a',
                     cursor: 'pointer'
@@ -233,7 +233,7 @@ export default function Home({ user }){
               <div style={{ padding: 12, border: '1px solid #e2e8f0', borderRadius: 6, background: '#f8fafc', cursor: 'pointer', transition: 'background 0.2s' }}>
                 <div style={{ fontSize: 14, fontWeight: 500 }}><strong>{r.title}</strong></div>
                 <div style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>
-                  {r.author?.locationLabel || (r.author?.city && r.author?.state ? `${r.author.city}, ${r.author.state}` : (r.author?.zipcode ? `Zip: ${r.author.zipcode}` : 'Location unavailable'))}
+                  {r.requestLocation?.city ? `${r.requestLocation.city}, ${r.requestLocation.state}` : (r.author?.locationLabel || (r.author?.city && r.author?.state ? `${r.author.city}, ${r.author.state}` : (r.author?.zipcode ? `Zip: ${r.author.zipcode}` : 'Location unavailable')))}
                 </div>
                 {r.tags?.length > 0 && (
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>

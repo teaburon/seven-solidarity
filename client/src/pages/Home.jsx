@@ -234,7 +234,7 @@ export default function Home({ user }){
                     ))}
                   </div>
                 )}
-                <div style={{ fontSize: 14, color: 'var(--gray-400)', marginTop: 6 }}>
+                <div style={{ fontSize: 14, color: 'var(--gray-500)', marginTop: 6 }}>
                   {r.status === 'open' ? '🟢 Open' : '🔴 Closed'} • {Array.isArray(r.responses) ? r.responses.length : 0} responses • {formatPostedAt(r.createdAt)}
                 </div>
               </div>

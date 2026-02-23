@@ -1,6 +1,6 @@
 :root {
   /* Brand Colors */
-  --primary: #00d732;
+  --primary: #a000d7;
   --danger: #c70000;
   --black: #000000;
   --white: #ffffff;
@@ -28,7 +28,7 @@
   --border-light: #eee;
   --border-default: #8a8e0d;
   --primary-light-bg: #f3e5ff;
-  --bg-dark: #000;
+  --bg-dark: #260f2a;
   --text-light: #dfdfdf;
 }
 
@@ -54,9 +54,12 @@ a {
   color: var(--primary);
   font-weight: 600;
 }
-.logo {
+h1.logo a{
   font-size: 24px;
   font-weight: 700;
   color: var(--white);
   text-decoration: none;
+}
+h2{
+  color: var(--gray-900);
 }

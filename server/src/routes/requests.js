@@ -41,15 +41,29 @@ function escapeRegex(value) {
 // Create request
 router.post('/', ensureAuth, async (req, res) => {
   try {
-    const { title, description, tags } = req.body;
+    const { title, description, tags, requestLocation } = req.body;
     if (!title || !String(title).trim()) {
       return res.status(400).json({ error: 'Title is required' });
     }
+    
+    let location = { city: '', state: req.user.state };
+    if (requestLocation?.city && requestLocation?.state) {
+      const locState = String(requestLocation.state).toUpperCase().trim();
+      if (locState !== String(req.user.state).toUpperCase()) {
+        return res.status(400).json({ error: 'Request location must be in your state' });
+      }
+      location = {
+        city: String(requestLocation.city).trim(),
+        state: locState
+      };
+    }
+    
     const reqDoc = await Request.create({
       title: String(title).trim(),
       description,
       tags: normalizeTags(tags),
-      author: req.user._id
+      author: req.user._id,
+      requestLocation: location
     });
     await User.findByIdAndUpdate(req.user._id, { $addToSet: { requests: reqDoc._id } });
     res.json(reqDoc);
@@ -140,7 +154,7 @@ router.get('/:id', ensureAuth, ensureLocationSet, async (req, res) => {
     const mentionCandidates = new Map();
     if (doc.author?._id && doc.author.username) {
       mentionCandidates.set(String(doc.author.username).toLowerCase(), {
-        id: doc.author._id,
+        _id: doc.author._id,
         username: doc.author.username,
         displayName: doc.author.displayName || doc.author.username
       });
@@ -148,7 +162,7 @@ router.get('/:id', ensureAuth, ensureLocationSet, async (req, res) => {
     for (const response of doc.responses || []) {
       if (response?.user?._id && response?.user?.username) {
         mentionCandidates.set(String(response.user.username).toLowerCase(), {
-          id: response.user._id,
+          _id: response.user._id,
           username: response.user.username,
           displayName: response.user.displayName || response.user.username
         });

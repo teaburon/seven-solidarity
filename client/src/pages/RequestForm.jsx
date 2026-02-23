@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
 import { get, post } from '../api'
 
-export default function RequestForm({ onCreated }){
+export default function RequestForm({ user, onCreated }){
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [tags, setTags] = useState('')
+  const [requestCity, setRequestCity] = useState(user?.city || '')
+  const [requestState, setRequestState] = useState(user?.state || '')
   const [suggestions, setSuggestions] = useState([])
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -62,7 +64,15 @@ export default function RequestForm({ onCreated }){
     try {
       setError('')
       setLoading(true)
-      const body = { title, description, tags: uniqueTags(tags.split(',')) }
+      const body = { 
+        title, 
+        description, 
+        tags: uniqueTags(tags.split(',')),
+        requestLocation: {
+          city: requestCity.trim(),
+          state: requestState.trim()
+        }
+      }
       const created = await post('/api/requests', body)
       if (onCreated) onCreated(created._id)
     } catch (err) {
@@ -78,6 +88,24 @@ export default function RequestForm({ onCreated }){
       <form onSubmit={submit} style={{ display: 'grid', gap: 8, maxWidth: 700 }}>
         <input required placeholder="Title" value={title} onChange={e => setTitle(e.target.value)} />
         <textarea placeholder="Description" value={description} onChange={e => setDescription(e.target.value)} rows={6} />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+          <input 
+            placeholder="City" 
+            value={requestCity} 
+            onChange={e => setRequestCity(e.target.value)} 
+            title={user?.state ? `Must be in ${user.state}` : 'Set location in profile first'}
+            disabled={!user?.state}
+          />
+          <input 
+            placeholder="State (abbreviation)" 
+            value={requestState} 
+            onChange={e => setRequestState(e.target.value)} 
+            title={user?.state ? `Must be in ${user.state}` : 'Set location in profile first'}
+            disabled={!user?.state}
+            maxLength={2}
+          />
+        </div>
+        {user?.state && <div style={{ fontSize: 12, color: '#666' }}>Location must be within {user.state}</div>}
         <input
           placeholder="tags, comma separated"
           value={tags}
@@ -144,7 +172,7 @@ export default function RequestForm({ onCreated }){
             ))}
           </div>
         )}
-        <button type="submit" disabled={loading}>{loading ? 'Creating...' : 'Create'}</button>
+        <button type="submit" disabled={loading} style={{ background: '#bd00ff', color: '#fff', border: 'none', borderRadius: 6, padding: '10px 16px', cursor: 'pointer', fontWeight: 600 }}>{loading ? 'Creating...' : 'Create'}</button>
       </form>
     </div>
   )

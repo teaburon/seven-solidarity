@@ -18,7 +18,11 @@ const RequestSchema = new mongoose.Schema({
   status: { type: String, enum: ['open', 'closed'], default: 'open' },
   resolvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   resolvedAt: { type: Date },
-  solvedOutsidePlatform: { type: Boolean, default: false }
+  solvedOutsidePlatform: { type: Boolean, default: false },
+  requestLocation: {
+    city: String,
+    state: String
+  }
 });
 
 module.exports = mongoose.model('Request', RequestSchema);

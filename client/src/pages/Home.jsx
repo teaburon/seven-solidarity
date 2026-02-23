@@ -165,7 +165,7 @@ export default function Home({ user }){
                 borderRadius: 999,
                 background: '#e2e8f0',
                 color: 'var(--gray-900)',
-                fontSize: 12
+                fontSize: 14
               }}
             >
               {tag}
@@ -179,7 +179,7 @@ export default function Home({ user }){
                   borderRadius: 0,
                   padding: 0,
                   cursor: 'pointer',
-                  fontSize: 12
+                  fontSize: 14
                 }}
               >
                 ×
@@ -201,7 +201,7 @@ export default function Home({ user }){
       {showTagFilters && (
         <div style={{ marginBottom: 12, border: '1px solid #ddd', borderRadius: 8, padding: 10, background: '#fff' }}>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {availableTags.length === 0 && <span style={{ fontSize: 12, color: 'var(--gray-500)' }}>No tags yet.</span>}
+            {availableTags.length === 0 && <span style={{ fontSize: 14, color: 'var(--gray-500)' }}>No tags yet.</span>}
             {availableTags.map(tag => {
               const selected = selectedTags.some(t => t.toLowerCase() === tag.toLowerCase())
               return (
@@ -232,20 +232,21 @@ export default function Home({ user }){
           <li key={r._id} style={{ marginBottom: 10, listStyle: 'none' }}>
             <Link to={`/r/${r._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
               <div style={{ padding: 12, border: '1px solid var(--gray-200)', borderRadius: 6, background: 'var(--gray-100)', cursor: 'pointer', transition: 'background 0.2s' }}>
-                <div style={{ fontSize: 14, fontWeight: 500 }}><strong>{r.title}</strong></div>
-                <div style={{ fontSize: 12, color: 'var(--gray-600)', marginTop: 4 }}>
+                <div style={{ fontSize: 14, fontWeight: 500 }}>
+                  <h2 class='title'>{r.title}</h2></div>
+                <div style={{ fontSize: 14, color: 'var(--gray-600)', marginTop: 4 }}>
                   {r.requestLocation?.city ? `${r.requestLocation.city}, ${r.requestLocation.state}` : (r.author?.locationLabel || (r.author?.city && r.author?.state ? `${r.author.city}, ${r.author.state}` : (r.author?.zipcode ? `Zip: ${r.author.zipcode}` : 'Location unavailable')))}
                 </div>
                 {r.tags?.length > 0 && (
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
                     {r.tags.map(tag => (
-                      <span key={tag} style={{ fontSize: 11, padding: '3px 10px', background: 'var(--primary-light-bg)', borderRadius: 999, color: 'var(--black)' }}>
+                      <span key={tag} style={{ fontSize: 14, padding: '3px 10px', background: 'var(--primary-light-bg)', borderRadius: 999, color: 'var(--black)' }}>
                         #{tag}
                       </span>
                     ))}
                   </div>
                 )}
-                <div style={{ fontSize: 11, color: 'var(--gray-400)', marginTop: 6 }}>
+                <div style={{ fontSize: 14, color: 'var(--gray-400)', marginTop: 6 }}>
                   {r.status === 'open' ? '🟢 Open' : '🔴 Closed'} • {Array.isArray(r.responses) ? r.responses.length : 0} responses • {formatPostedAt(r.createdAt)}
                 </div>
               </div>

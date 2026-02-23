@@ -197,16 +197,16 @@ export default function RequestView({ user }){
           </div>
         )}
       </div>
-      <div style={{ marginTop: 6, marginBottom: 10, color: 'var(--gray-500)', fontSize: 12 }}>
+      <div style={{ marginTop: 6, marginBottom: 10, color: 'var(--gray-300)', fontSize: 14 }}>
         Posted {formatPostedAt(doc.createdAt)}
       </div>
       {doc.author?._id && (
-        <div style={{ marginBottom: 8, fontSize: 13, color: 'var(--gray-600)' }}>
+        <div style={{ marginBottom: 8, fontSize: 13, color: 'var(--gray-400)' }}>
           Requested by <Link to={`/u/${doc.author._id}`}>{doc.author.displayName || doc.author.username}</Link>
         </div>
       )}
       {doc.requestLocation?.city && (
-        <div style={{ marginBottom: 8, fontSize: 13, color: 'var(--gray-600)' }}>
+        <div style={{ marginBottom: 8, fontSize: 14, color: 'var(--gray-400)' }}>
           Location: {doc.requestLocation.city}, {doc.requestLocation.state}
         </div>
       )}
@@ -280,7 +280,7 @@ export default function RequestView({ user }){
         {user ? (
           <form onSubmit={respond} style={{ display: 'grid', gap: 8 }}>
             <textarea required value={msg} onChange={e => setMsg(e.target.value)} rows={4} disabled={loading} />
-            <div style={{ fontSize: 11, color: 'var(--gray-500)' }}>
+            <div style={{ fontSize: 14, color: 'var(--gray-300)' }}>
               You can mention people with @username and include links like https://example.org
             </div>
             <button type="submit" disabled={loading} style={{ background: 'var(--primary)', color: 'var(--white)', border: 'none', borderRadius: 6, padding: '10px 16px', cursor: 'pointer', fontWeight: 600 }}>{loading ? 'Sending...' : 'Send Response'}</button>

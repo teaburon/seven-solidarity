@@ -302,7 +302,7 @@ export default function Profile({ user, setUser }) {
   return (
     <div style={{ maxWidth: 760 }}>
       <h2>Your Profile</h2>
-      <p style={{ color: '#475569', marginTop: 0 }}>
+      <p style={{ color: 'var(--gray-600)', marginTop: 0 }}>
         This helps neighbors know who you are and how you can offer mutual aid.
       </p>
 
@@ -312,7 +312,7 @@ export default function Profile({ user, setUser }) {
       <form onSubmit={saveProfile} style={{ display: 'grid', gap: 16 }}>
         <div>
           <input value={form.displayName} onChange={e => updateField('displayName', e.target.value)} placeholder="Your display name" />
-          <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>Display name</div>
+          <div style={{ fontSize: 12, color: 'var(--gray-500)', marginTop: 4 }}>Display name</div>
         </div>
 
         <div>
@@ -327,22 +327,22 @@ export default function Profile({ user, setUser }) {
 
         <div>
           <input value={form.locationLabel} onChange={e => updateField('locationLabel', e.target.value)} placeholder="Neighborhood, district, or local name" />
-          <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>Neighborhood (optional)</div>
+          <div style={{ fontSize: 12, color: 'var(--gray-500)', marginTop: 4 }}>Neighborhood (optional)</div>
         </div>
 
         <div>
           <textarea rows={4} value={form.bio} onChange={e => updateField('bio', e.target.value)} placeholder="What matters to you, your community, and what support you care about." />
-          <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>Short bio</div>
+          <div style={{ fontSize: 12, color: 'var(--gray-500)', marginTop: 4 }}>Short bio</div>
         </div>
 
         <div>
           <div style={{ fontWeight: 600, marginBottom: 8 }}>How to reach you</div>
-          <div style={{ fontSize: 12, color: '#64748b', marginBottom: 12, fontStyle: 'italic' }}>
+          <div style={{ fontSize: 12, color: 'var(--gray-500)', marginBottom: 12, fontStyle: 'italic' }}>
             ⚠️ Only share what you're comfortable with. Exercise caution when sharing contact information.
           </div>
 
           <div style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 12, color: '#64748b', marginBottom: 6 }}>
+            <div style={{ fontSize: 12, color: 'var(--gray-500)', marginBottom: 6 }}>
               Discord username: {user?.username || 'Not connected'}
             </div>
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
@@ -363,7 +363,7 @@ export default function Profile({ user, setUser }) {
               onChange={e => setContactValue('Signal', e.target.value)}
               placeholder="Your Signal number or username"
             />
-            <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>Signal</div>
+            <div style={{ fontSize: 12, color: 'var(--gray-500)', marginTop: 2 }}>Signal</div>
           </div>
 
           {/* Custom fields */}
@@ -397,7 +397,7 @@ export default function Profile({ user, setUser }) {
                     </button>
                   </div>
                   {isSocialLabel && (
-                    <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
+                    <div style={{ fontSize: 11, color: 'var(--gray-500)', marginTop: 2 }}>
                       💡 Use @username format (e.g., @myhandle) for auto-linking
                     </div>
                   )}
@@ -408,7 +408,7 @@ export default function Profile({ user, setUser }) {
           <button
             type="button"
             onClick={addContactMethod}
-            style={{ marginTop: 8, padding: '8px 12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 6, cursor: 'pointer', fontSize: 13, color: '#bd00ff' }}
+            style={{ marginTop: 8, padding: '8px 12px', background: 'var(--gray-100)', border: '1px solid var(--gray-200)', borderRadius: 6, cursor: 'pointer', fontSize: 13, color: 'var(--primary)' }}
           >
             + Add field
           </button>
@@ -479,7 +479,7 @@ export default function Profile({ user, setUser }) {
               </button>
             ))}
           </div>
-          <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>Skills (click suggestions or press Enter)</div>
+          <div style={{ fontSize: 12, color: 'var(--gray-500)', marginTop: 4 }}>Skills (click suggestions or press Enter)</div>
         </div>
 
         <div>
@@ -542,7 +542,7 @@ export default function Profile({ user, setUser }) {
               </button>
             ))}
           </div>
-          <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>What you can offer (click suggestions or press Enter)</div>
+          <div style={{ fontSize: 12, color: 'var(--gray-500)', marginTop: 4 }}>What you can offer (click suggestions or press Enter)</div>
         </div>
 
         <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
@@ -558,10 +558,10 @@ export default function Profile({ user, setUser }) {
         </div>
 
         <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginTop: 8 }}>
-          <button type="submit" disabled={saving} style={{ background: '#bd00ff', color: '#fff', border: 'none', borderRadius: 6, padding: '10px 16px', cursor: 'pointer', fontWeight: 600 }}>
+          <button type="submit" disabled={saving} style={{ background: 'var(--primary)', color: 'var(--white)', border: 'none', borderRadius: 6, padding: '10px 16px', cursor: 'pointer', fontWeight: 600 }}>
             {saving ? 'Saving...' : 'Save Profile'}
           </button>
-          <Link to={`/u/${user.id}`} style={{ color: '#bd00ff', textDecoration: 'none' }}>
+          <Link to={`/u/${user.id}`} style={{ color: 'var(--primary)', textDecoration: 'none' }}>
             View Profile
           </Link>
         </div>

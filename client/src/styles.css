@@ -1,18 +1,55 @@
-body{
-    background:#f9fafb;color:#0f172a
-}
-input,textarea,button{
-    font:inherit;
-    padding:8px;
-    border:1px solid #ddd;
-    border-radius:6px
+:root {
+  /* Brand Colors */
+  --primary: #bd00ff;
+  --danger: #c70000;
+  --black: #000000;
+  --white: #ffffff;
+  
+  /* Grays */
+  --gray-900: #0f172a;
+  --gray-800: #1e293b;
+  --gray-700: #334155;
+  --gray-600: #475569;
+  --gray-500: #64748b;
+  --gray-400: #94a3b8;
+  --gray-300: #cbd5e1;
+  --gray-200: #e2e8f0;
+  --gray-100: #f8fafc;
+  --gray-50: #f3f4f6;
+  
+  /* Status Colors */
+  --success: #10b981;
+  --success-light: #d1fae5;
+  --success-dark: #047857;
+  
+  /* UI Colors */
+  --error-bg: #fee;
+  --error-text: #c00;
+  --border-light: #eee;
+  --border-default: #8a8e0d;
+  --primary-light-bg: #f3e5ff;
+  --bg-dark: #2c2c2c;
+  --text-light: #dfdfdf;
 }
 
-button{
-    background:#2563eb;
-    color:white;
-    border:none
+body {
+  background: var(--bg-dark);
+  color: var(--text-light);
 }
-a{
-    color:#2563eb
+
+input, textarea, button {
+  font: inherit;
+  padding: 8px;
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+}
+
+button {
+  background: var(--primary);
+  color: var(--white);
+  border: none;
+}
+
+a {
+  color: var(--primary);
 }

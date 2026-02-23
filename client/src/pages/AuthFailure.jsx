@@ -10,8 +10,8 @@ export default function AuthFailure() {
         display:'inline-block',
         marginTop:20,
         padding:'10px 20px',
-        background:'#bd00ff',
-        color:'white',
+        background:'var(--primary)',
+        color:'var(--white)',
         textDecoration:'none',
         borderRadius:6
       }}>

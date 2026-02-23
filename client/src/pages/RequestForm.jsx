@@ -122,8 +122,8 @@ export default function RequestForm({ user, onCreated }){
                   gap: 6,
                   padding: '4px 8px',
                   borderRadius: 999,
-                  background: '#e2e8f0',
-                  color: '#0f172a',
+                  background: 'var(--gray-200)',
+                  color: 'var(--gray-900)',
                   fontSize: 12
                 }}
               >
@@ -158,10 +158,10 @@ export default function RequestForm({ user, onCreated }){
                   display: 'block',
                   width: '100%',
                   textAlign: 'left',
-                  background: '#fff',
-                  color: '#0f172a',
+                  background: 'var(--white)',
+                  color: 'var(--gray-900)',
                   border: 'none',
-                  borderBottom: '1px solid #eee',
+                  borderBottom: '1px solid var(--border-light)',
                   borderRadius: 0,
                   padding: 8,
                   cursor: 'pointer'
@@ -172,7 +172,7 @@ export default function RequestForm({ user, onCreated }){
             ))}
           </div>
         )}
-        <button type="submit" disabled={loading} style={{ background: '#bd00ff', color: '#fff', border: 'none', borderRadius: 6, padding: '10px 16px', cursor: 'pointer', fontWeight: 600 }}>{loading ? 'Creating...' : 'Create'}</button>
+        <button type="submit" disabled={loading} style={{ background: 'var(--primary)', color: 'var(--white)', border: 'none', borderRadius: 6, padding: '10px 16px', cursor: 'pointer', fontWeight: 600 }}>{loading ? 'Creating...' : 'Create'}</button>
       </form>
     </div>
   )

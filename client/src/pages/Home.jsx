@@ -148,8 +148,8 @@ export default function Home({ user }){
               })
           }, 300)
         }} />
-        <button onClick={fetchList} style={{ whiteSpace: 'nowrap', background: '#bd00ff', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 14px', cursor: 'pointer', fontWeight: 600 }}>Search</button>
-        <button type="button" onClick={toggleTagFilters} style={{ whiteSpace: 'nowrap', background: '#bd00ff', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 14px', cursor: 'pointer', fontWeight: 600 }}>{showTagFilters ? 'Hide Filters' : 'Filter Tags'}</button>
+        <button onClick={fetchList} style={{ whiteSpace: 'nowrap', background: 'var(--primary)', color: 'var(--white)', border: 'none', borderRadius: 6, padding: '8px 14px', cursor: 'pointer', fontWeight: 600 }}>Search</button>
+        <button type="button" onClick={toggleTagFilters} style={{ whiteSpace: 'nowrap', background: 'var(--primary)', color: 'var(--white)', border: 'none', borderRadius: 6, padding: '8px 14px', cursor: 'pointer', fontWeight: 600 }}>{showTagFilters ? 'Hide Filters' : 'Filter Tags'}</button>
       </div>
 
       {selectedTags.length > 0 && (
@@ -164,7 +164,7 @@ export default function Home({ user }){
                 padding: '4px 8px',
                 borderRadius: 999,
                 background: '#e2e8f0',
-                color: '#0f172a',
+                color: 'var(--gray-900)',
                 fontSize: 12
               }}
             >
@@ -186,7 +186,7 @@ export default function Home({ user }){
               </button>
             </span>
           ))}
-          <button type="button" onClick={clearAllTags} style={{ background: 'transparent', color: '#bd00ff', border: 'none', padding: 0, cursor: 'pointer' }}>
+          <button type="button" onClick={clearAllTags} style={{ background: 'transparent', color: 'var(--primary)', border: 'none', padding: 0, cursor: 'pointer' }}>
             Clear All
           </button>
         </div>
@@ -201,7 +201,7 @@ export default function Home({ user }){
       {showTagFilters && (
         <div style={{ marginBottom: 12, border: '1px solid #ddd', borderRadius: 8, padding: 10, background: '#fff' }}>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {availableTags.length === 0 && <span style={{ fontSize: 12, color: '#64748b' }}>No tags yet.</span>}
+            {availableTags.length === 0 && <span style={{ fontSize: 12, color: 'var(--gray-500)' }}>No tags yet.</span>}
             {availableTags.map(tag => {
               const selected = selectedTags.some(t => t.toLowerCase() === tag.toLowerCase())
               return (
@@ -212,9 +212,9 @@ export default function Home({ user }){
                   style={{
                     padding: '6px 10px',
                     borderRadius: 999,
-                    border: selected ? '1px solid #bd00ff' : '1px solid #cbd5e1',
-                    background: selected ? '#f3e5ff' : '#f8fafc',
-                    color: selected ? '#000' : '#0f172a',
+                    border: selected ? '1px solid var(--primary)' : '1px solid var(--gray-300)',
+                    background: selected ? 'var(--primary-light-bg)' : 'var(--gray-100)',
+                    color: selected ? 'var(--black)' : 'var(--gray-900)',
                     cursor: 'pointer',
                     fontWeight: selected ? 600 : 400
                   }}
@@ -231,21 +231,21 @@ export default function Home({ user }){
         {list.map(r => (
           <li key={r._id} style={{ marginBottom: 10, listStyle: 'none' }}>
             <Link to={`/r/${r._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-              <div style={{ padding: 12, border: '1px solid #e2e8f0', borderRadius: 6, background: '#f8fafc', cursor: 'pointer', transition: 'background 0.2s' }}>
+              <div style={{ padding: 12, border: '1px solid var(--gray-200)', borderRadius: 6, background: 'var(--gray-100)', cursor: 'pointer', transition: 'background 0.2s' }}>
                 <div style={{ fontSize: 14, fontWeight: 500 }}><strong>{r.title}</strong></div>
-                <div style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>
+                <div style={{ fontSize: 12, color: 'var(--gray-600)', marginTop: 4 }}>
                   {r.requestLocation?.city ? `${r.requestLocation.city}, ${r.requestLocation.state}` : (r.author?.locationLabel || (r.author?.city && r.author?.state ? `${r.author.city}, ${r.author.state}` : (r.author?.zipcode ? `Zip: ${r.author.zipcode}` : 'Location unavailable')))}
                 </div>
                 {r.tags?.length > 0 && (
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
                     {r.tags.map(tag => (
-                      <span key={tag} style={{ fontSize: 11, padding: '3px 10px', background: '#f3e5ff', borderRadius: 999, color: '#000' }}>
+                      <span key={tag} style={{ fontSize: 11, padding: '3px 10px', background: 'var(--primary-light-bg)', borderRadius: 999, color: 'var(--black)' }}>
                         #{tag}
                       </span>
                     ))}
                   </div>
                 )}
-                <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 6 }}>
+                <div style={{ fontSize: 11, color: 'var(--gray-400)', marginTop: 6 }}>
                   {r.status === 'open' ? '🟢 Open' : '🔴 Closed'} • {Array.isArray(r.responses) ? r.responses.length : 0} responses • {formatPostedAt(r.createdAt)}
                 </div>
               </div>

@@ -113,8 +113,8 @@ export default function PublicProfile({ user }) {
             to="/profile"
             style={{
               padding: '8px 14px',
-              background: '#2563eb',
-              color: '#fff',
+              background: 'var(--primary)',
+              color: 'var(--white)',
               borderRadius: 999,
               fontSize: 13,
               fontWeight: 600,
@@ -125,7 +125,7 @@ export default function PublicProfile({ user }) {
           </Link>
         )}
       </div>
-      <div style={{ color: '#475569', marginBottom: 8 }}>
+      <div style={{ color: 'var(--gray-600)', marginBottom: 8 }}>
         {profile.locationLabel && profile.city && profile.state && `${profile.locationLabel} (${profile.city}, ${profile.state})`}
         {profile.locationLabel && !profile.city && profile.locationLabel}
         {!profile.locationLabel && profile.city && profile.state && `${profile.city}, ${profile.state}`}
@@ -136,8 +136,8 @@ export default function PublicProfile({ user }) {
 
       {contactItems.length > 0 && (
         <section style={{ marginTop: 12, marginBottom: 8 }}>
-          <div style={{ padding: 14, borderRadius: 12, background: 'linear-gradient(135deg, #f8fafc, #eef2ff)', border: '1px solid #e2e8f0' }}>
-            <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#64748b', marginBottom: 8 }}>
+          <div style={{ padding: 14, borderRadius: 12, background: 'linear-gradient(135deg, var(--gray-100), #eef2ff)', border: '1px solid var(--gray-200)' }}>
+            <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--gray-500)', marginBottom: 8 }}>
               Contact
             </div>
             <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gap: 6 }}>
@@ -145,10 +145,10 @@ export default function PublicProfile({ user }) {
                 <li key={idx} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   {method.label === 'Discord' || !normalizeContactUrl(method.value, method.label) ? (
                     <>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: '#0f172a', background: '#e2e8f0', padding: '2px 8px', borderRadius: 999 }}>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--gray-900)', background: 'var(--gray-200)', padding: '2px 8px', borderRadius: 999 }}>
                         {method.label}
                       </span>
-                      <span style={{ fontSize: 13, color: '#1f2937' }}>{method.value}</span>
+                      <span style={{ fontSize: 13, color: 'var(--gray-800)' }}>{method.value}</span>
                     </>
                   ) : (
                     <a
@@ -158,8 +158,8 @@ export default function PublicProfile({ user }) {
                       style={{
                         fontSize: 12,
                         fontWeight: 600,
-                        color: '#fff',
-                        background: '#bd00ff',
+                        color: 'var(--white)',
+                        background: 'var(--primary)',
                         padding: '4px 10px',
                         borderRadius: 999,
                         textDecoration: 'none'
@@ -203,20 +203,20 @@ export default function PublicProfile({ user }) {
           <div style={{ display: 'grid', gap: 12 }}>
             {profile.requests.map(request => (
               <Link key={request._id} to={`/r/${request._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                <div style={{ padding: 12, border: '1px solid #e2e8f0', borderRadius: 6, background: '#f8fafc', cursor: 'pointer', transition: 'background 0.2s' }}>
+                <div style={{ padding: 12, border: '1px solid var(--gray-200)', borderRadius: 6, background: 'var(--gray-100)', cursor: 'pointer', transition: 'background 0.2s' }}>
                   <div style={{ fontSize: 14, fontWeight: 500 }}>{request.title}</div>
-                  {request.requestLocation?.city && <div style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>{request.requestLocation.city}, {request.requestLocation.state}</div>}
-                  {request.description && <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>{request.description}</div>}
+                  {request.requestLocation?.city && <div style={{ fontSize: 12, color: 'var(--gray-600)', marginTop: 4 }}>{request.requestLocation.city}, {request.requestLocation.state}</div>}
+                  {request.description && <div style={{ fontSize: 13, color: 'var(--gray-500)', marginTop: 4 }}>{request.description}</div>}
                   {request.tags?.length > 0 && (
                     <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
                       {request.tags.map(tag => (
-                        <span key={tag} style={{ fontSize: 11, padding: '3px 10px', background: '#f3e5ff', borderRadius: 999, color: '#000' }}>
+                        <span key={tag} style={{ fontSize: 11, padding: '3px 10px', background: 'var(--primary-light-bg)', borderRadius: 999, color: 'var(--black)' }}>
                           #{tag}
                         </span>
                       ))}
                     </div>
                   )}
-                  <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 6 }}>
+                  <div style={{ fontSize: 11, color: 'var(--gray-400)', marginTop: 6 }}>
                     {request.status === 'open' ? '🟢 Open' : '🔴 Closed'} • {Array.isArray(request.responses) ? request.responses.length : 0} responses • {formatPostedAt(request.createdAt)}
                   </div>
                 </div>

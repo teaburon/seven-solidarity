@@ -87,7 +87,7 @@ export default function App(){
       <div style={{ maxWidth: 900, margin: '0 auto', padding: 24, fontFamily: 'system-ui, sans-serif' }}>
         <header style={{ marginBottom: 24 }}>
           <h1 style={{ marginBottom: 8 }}>S.E.V.E.N. SOLIDARITY</h1>
-          <p style={{ color: 'var(--gray-600)', marginTop: 0 }}>Log in to create, view, and search requests.</p>
+          <p style={{ color: 'var(--gray-400)', marginTop: 0 }}>Log in to create, view, and search requests.</p>
         </header>
         <a href={API + '/auth/discord'} style={{ display: 'inline-block', padding: '10px 16px', borderRadius: 8, background: 'var(--primary)', color: 'var(--white)', textDecoration: 'none', fontWeight: 600 }}>
           Login with Discord
@@ -104,7 +104,7 @@ export default function App(){
       fontFamily: 'system-ui, sans-serif'
     }}>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1><Link to="/">S.E.V.E.N. SOLIDARITY</Link></h1>
+        <h1 className='logo'><Link to="/">S.E.V.E.N. SOLIDARITY</Link></h1>
         <nav>
           <a href="/">Home</a> {' | '}
           <Link to="/new">Create</Link> {' | '}

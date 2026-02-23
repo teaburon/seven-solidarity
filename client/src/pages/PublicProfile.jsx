@@ -210,7 +210,7 @@ export default function PublicProfile({ user }) {
                   {request.tags?.length > 0 && (
                     <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
                       {request.tags.map(tag => (
-                        <span key={tag} style={{ fontSize: 11, padding: '3px 10px', background: '#e0e7ff', borderRadius: 999, color: '#3730a3' }}>
+                        <span key={tag} style={{ fontSize: 11, padding: '3px 10px', background: '#f3e5ff', borderRadius: 999, color: '#000' }}>
                           #{tag}
                         </span>
                       ))}

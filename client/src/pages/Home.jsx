@@ -148,8 +148,8 @@ export default function Home({ user }){
               })
           }, 300)
         }} />
-        <button onClick={fetchList} style={{ whiteSpace: 'nowrap' }}>Search</button>
-        <button type="button" onClick={toggleTagFilters} style={{ whiteSpace: 'nowrap' }}>{showTagFilters ? 'Hide Filters' : 'Filter Tags'}</button>
+        <button onClick={fetchList} style={{ whiteSpace: 'nowrap', background: '#bd00ff', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 14px', cursor: 'pointer', fontWeight: 600 }}>Search</button>
+        <button type="button" onClick={toggleTagFilters} style={{ whiteSpace: 'nowrap', background: '#bd00ff', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 14px', cursor: 'pointer', fontWeight: 600 }}>{showTagFilters ? 'Hide Filters' : 'Filter Tags'}</button>
       </div>
 
       {selectedTags.length > 0 && (
@@ -213,9 +213,10 @@ export default function Home({ user }){
                     padding: '6px 10px',
                     borderRadius: 999,
                     border: selected ? '1px solid #bd00ff' : '1px solid #cbd5e1',
-                    background: selected ? '#dbeafe' : '#f8fafc',
-                    color: '#0f172a',
-                    cursor: 'pointer'
+                    background: selected ? '#f3e5ff' : '#f8fafc',
+                    color: selected ? '#000' : '#0f172a',
+                    cursor: 'pointer',
+                    fontWeight: selected ? 600 : 400
                   }}
                 >
                   {tag}
@@ -238,7 +239,7 @@ export default function Home({ user }){
                 {r.tags?.length > 0 && (
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
                     {r.tags.map(tag => (
-                      <span key={tag} style={{ fontSize: 11, padding: '3px 10px', background: '#e0e7ff', borderRadius: 999, color: '#3730a3' }}>
+                      <span key={tag} style={{ fontSize: 11, padding: '3px 10px', background: '#f3e5ff', borderRadius: 999, color: '#000' }}>
                         #{tag}
                       </span>
                     ))}

@@ -120,8 +120,8 @@ export default function Home({ user }){
 
   return (
     <div>
-      {error && <div style={{ padding: 12, background: '#fee', color: '#c00', borderRadius: 6, marginBottom: 12 }}>{error}</div>}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 12, alignItems: 'center' }}>
+      {error && <div className="error-banner">{error}</div>}
+      <div className="row-wrap" style={{ marginBottom: 12 }}>
         <input placeholder="Search requests, titles, or usernames..." style={{ flex: 1, minWidth: 360 }} value={q} onChange={e => {
           setQ(e.target.value)
           setTimeout(() => {
@@ -148,26 +148,14 @@ export default function Home({ user }){
               })
           }, 300)
         }} />
-        <button onClick={fetchList} style={{ whiteSpace: 'nowrap', background: 'var(--primary)', color: 'var(--white)', border: 'none', borderRadius: 6, padding: '8px 14px', cursor: 'pointer', fontWeight: 600 }}>Search</button>
-        <button type="button" onClick={toggleTagFilters} style={{ whiteSpace: 'nowrap', background: 'var(--primary)', color: 'var(--white)', border: 'none', borderRadius: 6, padding: '8px 14px', cursor: 'pointer', fontWeight: 600 }}>{showTagFilters ? 'Hide Filters' : 'Filter Tags'}</button>
+        <button onClick={fetchList} className="btn btn-primary btn-md" style={{ whiteSpace: 'nowrap' }}>Search</button>
+        <button type="button" onClick={toggleTagFilters} className="btn btn-primary btn-md" style={{ whiteSpace: 'nowrap' }}>{showTagFilters ? 'Hide Filters' : 'Filter Tags'}</button>
       </div>
 
       {selectedTags.length > 0 && (
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
+        <div className="row-wrap" style={{ marginBottom: 12, gap: 6 }}>
           {selectedTags.map(tag => (
-            <span
-              key={tag}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                padding: '4px 8px',
-                borderRadius: 999,
-                background: '#e2e8f0',
-                color: 'var(--gray-900)',
-                fontSize: 14
-              }}
-            >
+            <span key={tag} className="chip chip-filter">
               {tag}
               <button
                 type="button"
@@ -186,20 +174,20 @@ export default function Home({ user }){
               </button>
             </span>
           ))}
-          <button type="button" onClick={clearAllTags} style={{ background: 'transparent', color: 'var(--primary)', border: 'none', padding: 0, cursor: 'pointer' }}>
+          <button type="button" onClick={clearAllTags} className="btn-link" style={{ textDecoration: 'none' }}>
             Clear All
           </button>
         </div>
       )}
 
       {locationGate && (
-        <div style={{ padding: 12, borderRadius: 6, marginBottom: 12, background: '#fff7ed', color: '#9a3412', border: '1px solid #fdba74' }}>
+        <div className="warning-banner">
           {locationGate} <Link to="/profile" style={{ color: '#c2410c', fontWeight: 600 }}>Set location</Link>
         </div>
       )}
 
       {showTagFilters && (
-        <div style={{ marginBottom: 12, border: '1px solid #ddd', borderRadius: 8, padding: 10, background: '#fff' }}>
+        <div className="card" style={{ marginBottom: 12 }}>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {availableTags.length === 0 && <span style={{ fontSize: 14, color: 'var(--gray-500)' }}>No tags yet.</span>}
             {availableTags.map(tag => {
@@ -230,17 +218,17 @@ export default function Home({ user }){
       <ul>
         {list.map(r => (
           <li key={r._id} style={{ marginBottom: 10, listStyle: 'none' }}>
-            <Link to={`/r/${r._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-              <div style={{ padding: 12, border: '1px solid var(--gray-200)', borderRadius: 6, background: 'var(--gray-100)', cursor: 'pointer', transition: 'background 0.2s' }}>
+            <Link to={`/r/${r._id}`} className="card-link">
+              <div className="card" style={{ cursor: 'pointer', transition: 'background 0.2s' }}>
                 <div style={{ fontSize: 14, fontWeight: 500 }}>
-                  <h2 class='title'>{r.title}</h2></div>
+                  <h2 className='title'>{r.title}</h2></div>
                 <div style={{ fontSize: 14, color: 'var(--gray-600)', marginTop: 4 }}>
                   {r.requestLocation?.city ? `${r.requestLocation.city}, ${r.requestLocation.state}` : (r.author?.locationLabel || (r.author?.city && r.author?.state ? `${r.author.city}, ${r.author.state}` : (r.author?.zipcode ? `Zip: ${r.author.zipcode}` : 'Location unavailable')))}
                 </div>
                 {r.tags?.length > 0 && (
-                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
+                  <div className="row-wrap" style={{ marginTop: 8, gap: 6 }}>
                     {r.tags.map(tag => (
-                      <span key={tag} style={{ fontSize: 14, padding: '3px 10px', background: 'var(--primary-light-bg)', borderRadius: 999, color: 'var(--black)' }}>
+                      <span key={tag} className="chip chip-tag" style={{ fontSize: 14 }}>
                         #{tag}
                       </span>
                     ))}

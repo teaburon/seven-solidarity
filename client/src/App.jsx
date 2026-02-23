@@ -79,17 +79,17 @@ export default function App(){
   }, [])
 
   if (authLoading) {
-    return <div style={{ maxWidth: 900, margin: '0 auto', padding: 24, fontFamily: 'system-ui, sans-serif' }}>Loading...</div>
+    return <div className="page-shell auth">Loading...</div>
   }
 
   if (!user) {
     return (
-      <div style={{ maxWidth: 900, margin: '0 auto', padding: 24, fontFamily: 'system-ui, sans-serif' }}>
+      <div className="page-shell auth">
         <header style={{ marginBottom: 24 }}>
           <h1 style={{ marginBottom: 8 }}>S.E.V.E.N. SOLIDARITY</h1>
           <p style={{ color: 'var(--gray-400)', marginTop: 0 }}>Log in to create, view, and search requests.</p>
         </header>
-        <a href={API + '/auth/discord'} style={{ display: 'inline-block', padding: '10px 16px', borderRadius: 8, background: 'var(--primary)', color: 'var(--white)', textDecoration: 'none', fontWeight: 600 }}>
+        <a href={API + '/auth/discord'} className="btn btn-primary btn-lg" style={{ display: 'inline-block', textDecoration: 'none' }}>
           Login with Discord
         </a>
       </div>
@@ -97,13 +97,8 @@ export default function App(){
   }
 
   return (
-    <div style={{
-      maxWidth: 900,
-      margin: '0 auto',
-      padding: 20,
-      fontFamily: 'system-ui, sans-serif'
-    }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div className="page-shell">
+      <header className="site-header">
         <h1 className='logo'><Link to="/">S.E.V.E.N. SOLIDARITY</Link></h1>
         <nav>
           <a href="/">Home</a> {' | '}
@@ -113,15 +108,8 @@ export default function App(){
             <button
               type="button"
               onClick={logout}
-              style={{
-                marginLeft: 8,
-                background: 'none',
-                border: 'none',
-                padding: 0,
-                cursor: 'pointer',
-                color: 'var(--primary)',
-                textDecoration: 'underline'
-              }}
+              className="btn-link"
+              style={{ marginLeft: 8 }}
             >
               Logout
             </button>
@@ -129,7 +117,7 @@ export default function App(){
         </nav>
       </header>
 
-      <main style={{ marginTop: 20, paddingLeft: 'clamp(16px, 4vw, 56px)', paddingRight: 'clamp(16px, 4vw, 56px)', minHeight: '60vh' }}>
+      <main className="content-main">
         <Routes>
           <Route path="/" element={<Home user={user} />} />
           <Route path="/new" element={<RequestForm user={user} onCreated={id => navigate(`/r/${id}`)} />} />
@@ -140,9 +128,9 @@ export default function App(){
         </Routes>
       </main>
 
-      <footer style={{ marginTop: 60, paddingTop: 40, paddingBottom: 40, borderTop: '1px solid var(--gray-200)', textAlign: 'center', color: 'var(--gray-200)', fontSize: 13 }}>
+      <footer className="footer">
         <p style={{ margin: '0 0 12px 0' }}>
-          <a href="https://github.com/teaburon/seven-solidarity" target='_blank' rel='noopener noreferrer' style={{ color: 'var(--primary)', textDecoration: 'none' }}>GitHub Repository</a>
+          <a href="https://github.com/teaburon/seven-solidarity" target='_blank' rel='noopener noreferrer' className="footer-link">GitHub Repository</a>
         </p>
         <p style={{ margin: '0 0 8px 0' }}>
           © {new Date().getFullYear()} S.E.V.E.N. SOLIDARITY. All rights reserved.

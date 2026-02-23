@@ -300,52 +300,52 @@ export default function Profile({ user, setUser }) {
   if (loading) return <div>Loading profile...</div>
 
   return (
-    <div style={{ maxWidth: 760 }}>
+    <div className="panel-narrow">
       <h2>Your Profile</h2>
-      <p style={{ color: 'var(--gray-600)', marginTop: 0 }}>
+      <p className="muted-note">
         This helps neighbors know who you are and how you can offer mutual aid.
       </p>
 
-      {error && <div style={{ padding: 12, background: '#fee', color: '#c00', borderRadius: 6, marginBottom: 12 }}>{error}</div>}
-      {success && <div style={{ padding: 12, background: '#ecfdf3', color: '#047857', borderRadius: 6, marginBottom: 12 }}>{success}</div>}
+      {error && <div className="error-banner">{error}</div>}
+      {success && <div className="success-banner">{success}</div>}
 
-      <form onSubmit={saveProfile} style={{ display: 'grid', gap: 16 }}>
+      <form onSubmit={saveProfile} className="stack-lg">
         <div>
           <input value={form.displayName} onChange={e => updateField('displayName', e.target.value)} placeholder="Your display name" />
-          <div style={{ fontSize: 12, color: 'var(--gray-500)', marginTop: 4 }}>Display name</div>
+          <div className="field-help">Display name</div>
         </div>
 
         <div>
           <input value={form.zipcode} onChange={e => handleZipcodeChange(e.target.value)} placeholder="e.g. 98101" />
-          <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
+          <div className="field-help">
             Zip code {cityState && `(${cityState})`}
           </div>
-          <div style={{ fontSize: 12, color: '#9a3412', marginTop: 4 }}>
+          <div className="text-xs text-warning">
             You can change your location every 30 days.
           </div>
         </div>
 
         <div>
           <input value={form.locationLabel} onChange={e => updateField('locationLabel', e.target.value)} placeholder="Neighborhood, district, or local name" />
-          <div style={{ fontSize: 12, color: 'var(--gray-500)', marginTop: 4 }}>Neighborhood (optional)</div>
+          <div className="field-help">Neighborhood (optional)</div>
         </div>
 
         <div>
           <textarea rows={4} value={form.bio} onChange={e => updateField('bio', e.target.value)} placeholder="What matters to you, your community, and what support you care about." />
-          <div style={{ fontSize: 12, color: 'var(--gray-500)', marginTop: 4 }}>Short bio</div>
+          <div className="field-help">Short bio</div>
         </div>
 
         <div>
-          <div style={{ fontWeight: 600, marginBottom: 8 }}>How to reach you</div>
-          <div style={{ fontSize: 12, color: 'var(--gray-500)', marginBottom: 12, fontStyle: 'italic' }}>
+          <div className="section-title">How to reach you</div>
+          <div className="contact-warning">
             ⚠️ Only share what you're comfortable with. Exercise caution when sharing contact information.
           </div>
 
-          <div style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 12, color: 'var(--gray-500)', marginBottom: 6 }}>
+          <div className="contact-row">
+            <div className="contact-discord-label">
               Discord username: {user?.username || 'Not connected'}
             </div>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+            <label className="checkbox-row">
               <input
                 type="checkbox"
                 checked={form.allowDiscordContact}
@@ -357,13 +357,13 @@ export default function Profile({ user, setUser }) {
           </div>
 
           {/* Signal field */}
-          <div style={{ marginBottom: 10 }}>
+          <div className="contact-field-wrapper">
             <input
               value={getContactValue('Signal')}
               onChange={e => setContactValue('Signal', e.target.value)}
               placeholder="Your Signal number or username"
             />
-            <div style={{ fontSize: 12, color: 'var(--gray-500)', marginTop: 2 }}>Signal</div>
+            <div className="field-help-sm">Signal</div>
           </div>
 
           {/* Custom fields */}
@@ -373,31 +373,31 @@ export default function Profile({ user, setUser }) {
               const actualIndex = form.contactMethods.findIndex(m => m === method)
               const isSocialLabel = ['TikTok', 'Instagram', 'Facebook', 'Twitter', 'X', 'YouTube', 'LinkedIn', 'Bluesky', 'Mastodon', 'Threads'].includes(method.label)
               return (
-                <div key={actualIndex} style={{ marginBottom: 10 }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr auto', gap: 8, alignItems: 'start' }}>
+                <div key={actualIndex} className="contact-field-wrapper">
+                  <div className="contact-method-grid">
                     <input
                       value={method.label}
                       onChange={e => updateContactMethod(actualIndex, 'label', e.target.value)}
                       placeholder="Label (e.g., Email)"
                       list="social-label-options"
-                      style={{ fontSize: 13 }}
+                      className="contact-method-input"
                     />
                     <input
                       value={method.value}
                       onChange={e => updateContactMethod(actualIndex, 'value', e.target.value)}
                       placeholder={isSocialLabel ? "e.g., @username" : "Your contact info or profile link"}
-                      style={{ fontSize: 13 }}
+                      className="contact-method-input"
                     />
                     <button
                       type="button"
                       onClick={() => removeContactMethod(actualIndex)}
-                      style={{ padding: '6px 10px', background: '#fee', color: '#c00', border: '1px solid #fcc', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}
+                      className="btn-remove-contact"
                     >
                       Remove
                     </button>
                   </div>
                   {isSocialLabel && (
-                    <div style={{ fontSize: 11, color: 'var(--gray-500)', marginTop: 2 }}>
+                    <div className="contact-hint">
                       💡 Use @username format (e.g., @myhandle) for auto-linking
                     </div>
                   )}
@@ -408,7 +408,7 @@ export default function Profile({ user, setUser }) {
           <button
             type="button"
             onClick={addContactMethod}
-            style={{ marginTop: 8, padding: '8px 12px', background: 'var(--gray-100)', border: '1px solid var(--gray-200)', borderRadius: 6, cursor: 'pointer', fontSize: 13, color: 'var(--primary)' }}
+            className="contact-add-btn"
           >
             + Add field
           </button>
@@ -420,7 +420,7 @@ export default function Profile({ user, setUser }) {
         </div>
 
         <div>
-          <div style={{ position: 'relative' }}>
+          <div className="autocomplete-container">
             <input
               value={form.skillsInput}
               onChange={e => handleSkillsInput(e.target.value)}
@@ -431,15 +431,15 @@ export default function Profile({ user, setUser }) {
                 }
               }}
               placeholder="Type a skill (e.g., carpentry, cooking, tech support)"
-              style={{ width: '100%' }}
+              className="autocomplete-input"
             />
             {skillSuggestions.length > 0 && (
-              <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'white', border: '1px solid #e2e8f0', borderTop: 'none', borderRadius: '0 0 6px 6px', zIndex: 10 }}>
+              <div className="autocomplete-dropdown">
                 {skillSuggestions.map(skill => (
                   <div
                     key={skill}
                     onClick={() => addSkill(skill)}
-                    style={{ padding: '8px 12px', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', hover: { background: '#f8fafc' } }}
+                    className="autocomplete-item"
                     onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
                     onMouseLeave={e => e.currentTarget.style.background = 'white'}
                   >
@@ -449,41 +449,33 @@ export default function Profile({ user, setUser }) {
               </div>
             )}
           </div>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
+          <div className="chip-container">
             {form.skills.map(skill => (
-              <span key={skill} style={{ padding: '4px 10px', background: '#dbeafe', border: '1px solid #bfdbfe', borderRadius: 999, fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span key={skill} className="chip-skill">
                 {skill}
-                <button type="button" onClick={() => removeSkill(skill)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: 14, color: '#3b82f6' }}>
+                <button type="button" onClick={() => removeSkill(skill)} className="chip-skill-close">
                   ×
                 </button>
               </span>
             ))}
           </div>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
+          <div className="chip-suggestion-container">
             {ESSENTIAL_SKILLS_BANK.filter(skill => !form.skills.includes(skill)).map(skill => (
               <button
                 key={skill}
                 type="button"
                 onClick={() => addSkill(skill)}
-                style={{
-                  padding: '4px 10px',
-                  border: '1px dashed #93c5fd',
-                  background: '#eff6ff',
-                  borderRadius: 999,
-                  fontSize: 12,
-                  color: '#1d4ed8',
-                  cursor: 'pointer'
-                }}
+                className="chip-suggestion-skill"
               >
                 + {skill}
               </button>
             ))}
           </div>
-          <div style={{ fontSize: 12, color: 'var(--gray-500)', marginTop: 4 }}>Skills (click suggestions or press Enter)</div>
+          <div className="field-help">Skills (click suggestions or press Enter)</div>
         </div>
 
         <div>
-          <div style={{ position: 'relative' }}>
+          <div className="autocomplete-container">
             <input
               value={form.offersInput}
               onChange={e => handleOffersInput(e.target.value)}
@@ -494,15 +486,15 @@ export default function Profile({ user, setUser }) {
                 }
               }}
               placeholder="Type what you can offer (e.g., rides, groceries, childcare)"
-              style={{ width: '100%' }}
+              className="autocomplete-input"
             />
             {offerSuggestions.length > 0 && (
-              <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'white', border: '1px solid #e2e8f0', borderTop: 'none', borderRadius: '0 0 6px 6px', zIndex: 10 }}>
+              <div className="autocomplete-dropdown">
                 {offerSuggestions.map(offer => (
                   <div
                     key={offer}
                     onClick={() => addOffer(offer)}
-                    style={{ padding: '8px 12px', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', hover: { background: '#f8fafc' } }}
+                    className="autocomplete-item"
                     onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
                     onMouseLeave={e => e.currentTarget.style.background = 'white'}
                   >
@@ -512,40 +504,32 @@ export default function Profile({ user, setUser }) {
               </div>
             )}
           </div>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
+          <div className="chip-container">
             {form.offers.map(offer => (
-              <span key={offer} style={{ padding: '4px 10px', background: '#fef3c7', border: '1px solid #fde68a', borderRadius: 999, fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span key={offer} className="chip-offer">
                 {offer}
-                <button type="button" onClick={() => removeOffer(offer)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: 14, color: '#f59e0b' }}>
+                <button type="button" onClick={() => removeOffer(offer)} className="chip-offer-close">
                   ×
                 </button>
               </span>
             ))}
           </div>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
+          <div className="chip-suggestion-container">
             {ESSENTIAL_OFFERS_BANK.filter(offer => !form.offers.includes(offer)).map(offer => (
               <button
                 key={offer}
                 type="button"
                 onClick={() => addOffer(offer)}
-                style={{
-                  padding: '4px 10px',
-                  border: '1px dashed #facc15',
-                  background: '#fefce8',
-                  borderRadius: 999,
-                  fontSize: 12,
-                  color: '#a16207',
-                  cursor: 'pointer'
-                }}
+                className="chip-suggestion-offer"
               >
                 + {offer}
               </button>
             ))}
           </div>
-          <div style={{ fontSize: 12, color: 'var(--gray-500)', marginTop: 4 }}>What you can offer (click suggestions or press Enter)</div>
+          <div className="field-help">What you can offer (click suggestions or press Enter)</div>
         </div>
 
-        <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+        <label className="checkbox-row">
           <input
             type="checkbox"
             checked={form.openToHelp}
@@ -553,15 +537,15 @@ export default function Profile({ user, setUser }) {
           />
           <span>Open to help</span>
         </label>
-        <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
+        <div className="field-help-sm">
           People can reach out to you for help
         </div>
 
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginTop: 8 }}>
-          <button type="submit" disabled={saving} style={{ background: 'var(--primary)', color: 'var(--white)', border: 'none', borderRadius: 6, padding: '10px 16px', cursor: 'pointer', fontWeight: 600 }}>
+        <div className="profile-actions">
+          <button type="submit" disabled={saving} className="profile-save-btn">
             {saving ? 'Saving...' : 'Save Profile'}
           </button>
-          <Link to={`/u/${user.id}`} style={{ color: 'var(--primary)', textDecoration: 'none' }}>
+          <Link to={`/u/${user.id}`} className="profile-view-link">
             View Profile
           </Link>
         </div>

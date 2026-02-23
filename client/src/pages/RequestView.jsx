@@ -35,7 +35,7 @@ function renderResponseText(message, mentionUsers) {
 
     if (matchValue.startsWith('http://') || matchValue.startsWith('https://')) {
       nodes.push(
-        <a key={`url-${idx}`} href={matchValue} target="_blank" rel="noreferrer" style={{ color: 'var(--primary)' }}>
+        <a key={`url-${idx}`} href={matchValue} target="_blank" rel="noreferrer" className="link-inline">
           {matchValue}
         </a>
       )
@@ -44,7 +44,7 @@ function renderResponseText(message, mentionUsers) {
       const found = mentionMap.get(username)
       if (found?._id || found?.id) {
         nodes.push(
-          <Link key={`mention-${idx}`} to={`/u/${found._id || found.id}`} style={{ color: 'var(--primary)' }}>
+          <Link key={`mention-${idx}`} to={`/u/${found._id || found.id}`} className="link-inline">
             {matchValue}
           </Link>
         )
@@ -171,62 +171,64 @@ export default function RequestView({ user }){
 
   return (
     <div>
-      {error && <div style={{ padding: 12, background: 'var(--error-bg)', color: 'var(--error-text)', borderRadius: 6, marginBottom: 12 }}>{error}</div>}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
-        <h2 style={{ display: 'flex', alignItems: 'center', gap: 12, margin: 0 }}>
+      {error && <div className="error-banner">{error}</div>}
+      <div>
+        <h2 className="request-header">
           {doc.title}
-          <span style={{ fontSize: 14, fontWeight: 600, color: doc.status === 'open' ? 'var(--success)' : 'var(--danger)' }}>
+          <span className={`request-status-badge ${
+            doc.status === 'open' ? 'request-status-open' : 'request-status-closed'
+          }`}>
             {doc.status === 'open' ? '🟢 Open' : '🔴 Closed'}
           </span>
-          {doc.editedAt && <span style={{ fontSize: 11, color: 'var(--gray-500)' }}>edited</span>}
+          {doc.editedAt && <span className="request-edited-flag">edited</span>}
         </h2>
         {canClose && (
-          <div style={{ display: 'flex', gap: 6 }}>
+          <div className="row-wrap request-actions">
             {isAuthor && !editRequestMode && (
-              <button type="button" onClick={() => setEditRequestMode(true)} style={{ padding: '8px 12px', borderRadius: 999, border: '1px solid var(--primary)', background: 'var(--primary-light-bg)', color: 'var(--black)', cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>
+              <button type="button" onClick={() => setEditRequestMode(true)} className="btn btn-pill btn-request-edit">
                 Edit
               </button>
             )}
             <button
               type="button"
               onClick={() => setShowCloseModal(true)}
-              style={{ padding: '8px 14px', background: 'var(--danger)', color: 'var(--white)', border: 'none', borderRadius: 999, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}
+              className="btn btn-danger btn-pill"
             >
               {hasResponses ? 'Close' : 'Cancel'}
             </button>
           </div>
         )}
       </div>
-      <div style={{ marginTop: 6, marginBottom: 10, color: 'var(--gray-300)', fontSize: 14 }}>
+      <div className="request-meta">
         Posted {formatPostedAt(doc.createdAt)}
       </div>
       {doc.author?._id && (
-        <div style={{ marginBottom: 8, fontSize: 13, color: 'var(--gray-400)' }}>
+        <div className="section-submeta">
           Requested by <Link to={`/u/${doc.author._id}`}>{doc.author.displayName || doc.author.username}</Link>
         </div>
       )}
       {doc.requestLocation?.city && (
-        <div style={{ marginBottom: 8, fontSize: 14, color: 'var(--gray-400)' }}>
+        <div className="section-submeta section-submeta-location">
           Location: {doc.requestLocation.city}, {doc.requestLocation.state}
         </div>
       )}
       {editRequestMode ? (
-        <form onSubmit={saveRequestEdits} style={{ display: 'grid', gap: 8, marginBottom: 16 }}>
+        <form onSubmit={saveRequestEdits} className="request-edit-form stack">
           <input value={editTitle} onChange={e => setEditTitle(e.target.value)} required />
           <textarea value={editDescription} onChange={e => setEditDescription(e.target.value)} rows={4} />
           <input value={editTags} onChange={e => setEditTags(e.target.value)} placeholder="tag1, tag2" />
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button type="submit" disabled={loading} style={{ background: 'var(--primary)', color: 'var(--white)', border: 'none', borderRadius: 6, padding: '8px 12px', cursor: 'pointer', fontWeight: 600 }}>{loading ? 'Saving...' : 'Save'}</button>
-            <button type="button" onClick={() => setEditRequestMode(false)} disabled={loading} style={{ background: 'var(--gray-200)', color: 'var(--black)', border: 'none', borderRadius: 6, padding: '8px 12px', cursor: 'pointer' }}>Cancel</button>
+          <div className="row-wrap">
+            <button type="submit" disabled={loading} className="btn btn-primary btn-md">{loading ? 'Saving...' : 'Save'}</button>
+            <button type="button" onClick={() => setEditRequestMode(false)} disabled={loading} className="btn btn-muted btn-md">Cancel</button>
           </div>
         </form>
       ) : (
         <>
-          <div style={{ marginBottom: 8, whiteSpace: 'pre-wrap' }}>{renderResponseText(doc.description, doc.mentionUsers)}</div>
+          <div className="request-description">{renderResponseText(doc.description, doc.mentionUsers)}</div>
           {doc.tags?.length > 0 && (
-            <div style={{ marginBottom: 16, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            <div className="row-wrap request-tags">
               {doc.tags.map(tag => (
-                <span key={tag} style={{ fontSize: 11, padding: '3px 10px', background: 'var(--primary-light-bg)', borderRadius: 999, color: 'var(--black)' }}>
+                <span key={tag} className="chip chip-tag">
                   #{tag}
                 </span>
               ))}
@@ -240,13 +242,13 @@ export default function RequestView({ user }){
         {doc.responses?.length ? doc.responses.map(r => {
           const isChosenSolution = Boolean(chosenUserId && r.user?._id && String(r.user._id) === String(chosenUserId))
           return (
-          <div key={r._id} style={{ borderTop: '1px solid #eee', paddingTop: 10, paddingBottom: 6, background: isChosenSolution ? '#ecfdf5' : 'transparent', borderRadius: isChosenSolution ? 8 : 0, paddingLeft: isChosenSolution ? 8 : 0, paddingRight: isChosenSolution ? 8 : 0 }}>
-            <div style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <div key={r._id} className={`response-item ${isChosenSolution ? 'response-item-chosen' : ''}`}>
+            <div className="response-header">
               {r.user?._id && user?.id === r.user._id && editingResponseId !== r._id && doc.status === 'open' && (
                 <button type="button" onClick={() => {
                   setEditingResponseId(r._id)
                   setEditingResponseText(r.message || '')
-                }} style={{ padding: '4px 8px', borderRadius: 6, fontSize: 11, border: '1px solid var(--primary)', background: 'var(--primary-light-bg)', cursor: 'pointer', color: 'var(--black)', fontWeight: 600 }}>
+                }} className="btn-response-edit">
                   Edit
                 </button>
               )}
@@ -255,35 +257,35 @@ export default function RequestView({ user }){
               ) : (
                 r.user?.displayName || r.user?.username
               )}
-              <span style={{ fontSize: 11, color: 'var(--gray-500)' }}>{formatPostedAt(r.createdAt)}</span>
-              {r.editedAt && <span style={{ fontSize: 11, color: 'var(--gray-500)' }}>edited</span>}
-              {isChosenSolution && <span style={{ fontSize: 11, color: 'var(--success-dark)', fontWeight: 700, background: 'var(--success-light)', padding: '2px 8px', borderRadius: 999 }}>chosen solution</span>}
+              <span className="response-timestamp">{formatPostedAt(r.createdAt)}</span>
+              {r.editedAt && <span className="response-timestamp">edited</span>}
+              {isChosenSolution && <span className="response-solution-badge">chosen solution</span>}
             </div>
             {editingResponseId === r._id ? (
-              <div style={{ marginTop: 6, display: 'grid', gap: 6 }}>
+              <div className="response-edit-section stack-sm">
                 <textarea value={editingResponseText} onChange={e => setEditingResponseText(e.target.value)} rows={3} disabled={loading} />
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <button type="button" onClick={() => saveResponseEdit(r._id)} disabled={loading} style={{ background: 'var(--primary)', color: 'var(--white)', border: 'none', borderRadius: 6, padding: '6px 12px', cursor: 'pointer', fontWeight: 600 }}>Save</button>
-                  <button type="button" onClick={() => setEditingResponseId('')} disabled={loading} style={{ background: 'var(--gray-200)', color: 'var(--black)', border: 'none', borderRadius: 6, padding: '6px 12px', cursor: 'pointer' }}>Cancel</button>
+                <div className="row-wrap">
+                  <button type="button" onClick={() => saveResponseEdit(r._id)} disabled={loading} className="btn btn-primary btn-sm">Save</button>
+                  <button type="button" onClick={() => setEditingResponseId('')} disabled={loading} className="btn btn-muted btn-sm">Cancel</button>
                 </div>
               </div>
             ) : (
-              <div style={{ marginTop: 4, whiteSpace: 'pre-wrap' }}>{renderResponseText(r.message, doc.mentionUsers)}</div>
+              <div className="response-content pre-wrap">{renderResponseText(r.message, doc.mentionUsers)}</div>
             )}
           </div>
         )}) : <div>No responses yet</div>}
       </section>
 
       {doc.status !== 'closed' && (
-      <section style={{ marginTop: 16 }}>
+      <section className="respond-section">
         <h4>Respond</h4>
         {user ? (
-          <form onSubmit={respond} style={{ display: 'grid', gap: 8 }}>
+          <form onSubmit={respond} className="stack">
             <textarea required value={msg} onChange={e => setMsg(e.target.value)} rows={4} disabled={loading} />
-            <div style={{ fontSize: 14, color: 'var(--gray-300)' }}>
+            <div className="respond-hint">
               You can mention people with @username and include links like https://example.org
             </div>
-            <button type="submit" disabled={loading} style={{ background: 'var(--primary)', color: 'var(--white)', border: 'none', borderRadius: 6, padding: '10px 16px', cursor: 'pointer', fontWeight: 600 }}>{loading ? 'Sending...' : 'Send Response'}</button>
+            <button type="submit" disabled={loading} className="btn btn-primary btn-lg">{loading ? 'Sending...' : 'Send Response'}</button>
           </form>
         ) : (
           <div>Please login to respond.</div>
@@ -292,20 +294,20 @@ export default function RequestView({ user }){
       )}
 
       {showCloseModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: '#fff', borderRadius: 8, padding: 24, maxWidth: 420, boxShadow: '0 20px 25px rgba(0,0,0,0.1)' }}>
-            <h3 style={{ marginTop: 0 }}>{doc.responses?.length ? 'Who helped solve this?' : 'Cancel Request'}</h3>
+        <div className="modal-overlay">
+          <div className="modal-card">
+            <h3>{doc.responses?.length ? 'Who helped solve this?' : 'Cancel Request'}</h3>
             {doc.responses?.length ? (
               <>
-                <p style={{ color: '#666', marginBottom: 16 }}>Select the user whose response helped solve your request, or indicate it was solved outside the platform.</p>
-                <div style={{ display: 'grid', gap: 8, marginBottom: 16 }}>
+                <p className="modal-note">Select the user whose response helped solve your request, or indicate it was solved outside the platform.</p>
+                <div className="modal-solutions stack">
                   {[...new Map((doc.responses || []).filter(r => r.user?._id).map(r => [r.user._id, r.user])).values()].map(solutionUser => (
                     <button
                       key={solutionUser._id}
                       type="button"
                       onClick={() => handleClose(solutionUser._id, false)}
                       disabled={loading}
-                      style={{ padding: 12, background: 'var(--gray-100)', color: 'var(--gray-900)', border: '1px solid var(--gray-200)', borderRadius: 4, cursor: 'pointer', textAlign: 'left', fontSize: 13 }}
+                      className="btn-modal-solution"
                     >
                       <strong>{solutionUser.displayName || solutionUser.username}</strong>
                     </button>
@@ -313,14 +315,14 @@ export default function RequestView({ user }){
                 </div>
               </>
             ) : (
-              <p style={{ color: '#666', marginBottom: 16 }}>No responses yet. You can cancel this request.</p>
+              <p className="modal-note">No responses yet. You can cancel this request.</p>
             )}
-            <div style={{ display: 'flex', gap: 8 }}>
+            <div className="modal-actions row-wrap">
               <button
                 type="button"
                 onClick={() => handleClose(null, true)}
                 disabled={loading}
-                style={{ flex: 1, padding: 10, background: 'var(--primary)', color: 'var(--white)', border: 'none', borderRadius: 4, cursor: 'pointer', fontWeight: 600 }}
+                className="btn btn-primary modal-action-btn"
               >
                 {doc.responses?.length ? 'Solved outside platform' : 'Cancel request'}
               </button>
@@ -328,7 +330,7 @@ export default function RequestView({ user }){
                 type="button"
                 onClick={() => setShowCloseModal(false)}
                 disabled={loading}
-                style={{ flex: 1, padding: 10, background: 'var(--gray-200)', color: 'var(--black)', border: 'none', borderRadius: 4, cursor: 'pointer' }}
+                className="btn btn-muted modal-action-btn"
               >
                 Close
               </button>

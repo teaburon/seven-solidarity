@@ -84,8 +84,8 @@ export default function RequestForm({ user, onCreated }){
 
   return (
     <div>
-      {error && <div style={{ padding: 12, background: '#fee', color: '#c00', borderRadius: 6, marginBottom: 12 }}>{error}</div>}
-      <form onSubmit={submit} style={{ display: 'grid', gap: 8, maxWidth: 700 }}>
+      {error && <div className="error-banner">{error}</div>}
+      <form onSubmit={submit} className="stack" style={{ maxWidth: 700 }}>
         <input required placeholder="Title" value={title} onChange={e => setTitle(e.target.value)} />
         <textarea placeholder="Description" value={description} onChange={e => setDescription(e.target.value)} rows={6} />
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
@@ -105,28 +105,16 @@ export default function RequestForm({ user, onCreated }){
             maxLength={2}
           />
         </div>
-        {user?.state && <div style={{ fontSize: 12, color: '#666' }}>Location must be within {user.state}</div>}
+        {user?.state && <div className="muted-note" style={{ fontSize: 12 }}>Location must be within {user.state}</div>}
         <input
           placeholder="tags, comma separated"
           value={tags}
           onChange={e => onTagsChange(e.target.value)}
         />
         {selectedTags().length > 0 && (
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          <div className="row-wrap" style={{ gap: 6 }}>
             {selectedTags().map(tag => (
-              <span
-                key={tag}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  padding: '4px 8px',
-                  borderRadius: 999,
-                  background: 'var(--gray-200)',
-                  color: 'var(--gray-900)',
-                  fontSize: 12
-                }}
-              >
+              <span key={tag} className="chip chip-filter" style={{ fontSize: 12 }}>
                 {tag}
                 <button
                   type="button"
@@ -148,7 +136,7 @@ export default function RequestForm({ user, onCreated }){
           </div>
         )}
         {suggestions.length > 0 && (
-          <div style={{ border: '1px solid #ddd', borderRadius: 6, maxWidth: 700, background: '#fff' }}>
+          <div className="card" style={{ maxWidth: 700, background: 'var(--white)' }}>
             {suggestions.map(tag => (
               <button
                 key={tag}
@@ -172,7 +160,7 @@ export default function RequestForm({ user, onCreated }){
             ))}
           </div>
         )}
-        <button type="submit" disabled={loading} style={{ background: 'var(--primary)', color: 'var(--white)', border: 'none', borderRadius: 6, padding: '10px 16px', cursor: 'pointer', fontWeight: 600 }}>{loading ? 'Creating...' : 'Create'}</button>
+        <button type="submit" disabled={loading} className="btn btn-primary btn-lg">{loading ? 'Creating...' : 'Create'}</button>
       </form>
     </div>
   )

@@ -1,6 +1,7 @@
 :root {
   /* Brand Colors */
   --primary: #BF00FF; /* #8a8e0d not accessible */
+  --highlight: #DF7FFF;
   --danger: #EB0000; /* #c70000 not accessible */
   --black: #000000;
   --white: #ffffff;
@@ -28,7 +29,7 @@
   --border-light: #eee;
   --border-default: #8a8e0d;
   --primary-light-bg: #f3e5ff;
-  --bg-dark: #000;
+  --bg-dark: #260f2a;
   --text-light: #dfdfdf;
 }
 
@@ -67,7 +68,8 @@ h1.logo a{
   text-decoration: none;
 }
 h2{
-  color: var(--white);
+  color: var(--gray-700);
+  margin: 0;
 }
 
 .page-shell {
@@ -202,7 +204,7 @@ h2{
   background: transparent;
   border: none;
   padding: 0;
-  color: var(--primary);
+  color: var(--highlight);
   text-decoration: underline;
   cursor: pointer;
 }
@@ -218,18 +220,18 @@ h2{
   font-size: 11px;
   padding: 8px 12px;
   background: var(--primary-light-bg);
-  color: var(--black);
+  color: var(--gray-700);
 }
 
 .chip-filter {
-  padding: 4px 8px;
+  padding: 8px 12px;
   font-size: 14px;
   background: var(--gray-200);
   color: var(--gray-900);
 }
 
 .card {
-  padding: 15px;
+  padding: 25px;
   border: 1px solid var(--gray-200);
   border-radius: 6px;
   background: var(--gray-100);
@@ -538,7 +540,9 @@ h2{
   gap: 12px;
   margin: 0;
 }
-
+h2.request-header{
+  color: var(--gray-200);
+}
 .request-status-badge {
   font-size: 14px;
   font-weight: 600;

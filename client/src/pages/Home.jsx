@@ -202,7 +202,7 @@ export default function Home({ user }){
                     borderRadius: 999,
                     border: selected ? '1px solid var(--primary)' : '1px solid var(--gray-300)',
                     background: selected ? 'var(--primary-light-bg)' : 'var(--gray-100)',
-                    color: selected ? 'var(--black)' : 'var(--gray-900)',
+                    color: selected ? 'var(--primary)' : 'var(--gray-900)',
                     cursor: 'pointer',
                     fontWeight: selected ? 600 : 400
                   }}

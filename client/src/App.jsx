@@ -140,7 +140,7 @@ export default function App(){
         </Routes>
       </main>
 
-      <footer style={{ marginTop: 60, paddingTop: 40, paddingBottom: 40, borderTop: '1px solid var(--gray-200)', textAlign: 'center', color: 'var(--gray-500)', fontSize: 13 }}>
+      <footer style={{ marginTop: 60, paddingTop: 40, paddingBottom: 40, borderTop: '1px solid var(--gray-200)', textAlign: 'center', color: 'var(--gray-200)', fontSize: 13 }}>
         <p style={{ margin: '0 0 12px 0' }}>
           <a href="https://github.com/teaburon/seven-solidarity" target='_blank' rel='noopener noreferrer' style={{ color: 'var(--primary)', textDecoration: 'none' }}>GitHub Repository</a>
         </p>
